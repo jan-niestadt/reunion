@@ -2,7 +2,50 @@
 <html>
     <head>
         <title>Home</title>
+
         <script src="reunion.js"></script>
+
+        <script src="xml.js"></script>
+
+        <script src="fakeAnwResponse.js"></script>
+        <script src="anw.js"></script>
+
+        <!-- <script src="gtb.js"></script> -->
+
+        <script src="dummy.js"></script>
+        <style>
+body {
+    font-size: 120%;
+}
+
+#results h2 {
+    font-family: sans-serif;
+    font-weight: bold;
+    font-size: 1.2em;
+    padding: 0.6rem 0 0.4rem 0;
+    margin: 0;
+    background-color: rgb(241, 241, 241);
+}
+
+.results {
+    padding: 0;
+}
+
+.results > li > p > a {
+    font-weight: bold;
+}
+
+.results > li > p > .woordsoort {
+    font-style: italic;
+    color: #07606e;
+    font-weight: bold;
+}
+
+.results .betnr {
+    font-weight: bold;
+}
+
+        </style>
     </head>
     <body>
         <h1>Unified search ][ - The API strikes back!</h1>
@@ -16,11 +59,9 @@
         </div>
         <script>
 
-            REUNION.init();
-
             // Set up our results areas based on the services we're querying
             document.getElementById('results').innerHTML = REUNION.services()
-                .map(service => `<h2>${service.title}</h2><div id="results-${service.id}"></div>`)
+                .map(service => `<h2>${service.title} <span id='num-${service.id}'></span></h2><ul class="results" id="results-${service.id}"></ul>`)
                 .join('');
 
             // Hook into Reunion(TM)
@@ -34,16 +75,31 @@
                     },
 
                     searchCompleted(service, results) {
-                        document.getElementById(`results-${service.id}`).innerHTML = results.map(result => `
-                            <li>
-                                <a href="${result.link}">${result.title}</a>
-                                <p>${result.snippet}</p>
-                            </li>`).join('');
+                        document.getElementById(`num-${service.id}`).innerText = `[${results.length}]`;
+                        document.getElementById(`results-${service.id}`).innerHTML = results.map(result => {
+                            const hist = result.historischLemma && result.historischLemma !== result.modernLemma ? 
+                                ` (${result.historischLemma})` : '';
+                            const betHtml = result.betekenissen.map(bet => `
+                                <li>
+                                    <a href="${bet.url}" target="_blank">
+                                        <span class='betnr'>${bet.nr}</span>
+                                        ${bet.definitie}
+                                    </a>
+                                </li>`).join('');
+                            return `
+                                <li>
+                                    <p>
+                                        <a href="${result.url}" target="_blank">${result.modernLemma}</a>${hist}
+                                        <span class='woordsoort'>${result.woordsoort}</span>
+                                    </p>
+                                    <ul class="bet">${betHtml}</ul>
+                                </li>`;
+                        }).join('');
                     },
 
                     searchFailed(service, reason) {
                         console.log(`FAILED: search on ${service.id} for ${searchString}, reason: ${reason}`);
-                        document.getElementById(`results-${service.id}`).innerHTML = '<p>Search failed</p>';
+                        document.getElementById(`results-${service.id}`).innerHTML = `<p>Search on ${service.id} failed: ${reason}</p>`;
                     }
                 });
             });
