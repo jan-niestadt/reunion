@@ -1,0 +1,52 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <title>Home</title>
+        <script src="reunion.js"></script>
+    </head>
+    <body>
+        <h1>Unified search ][ - The API strikes back!</h1>
+        <p>
+            <form id="form">
+                <input id="search" type="text" name="search" placeholder="Search...">
+                <input type="submit" value="Search">
+            </form>
+        </p>
+        <div id="results">
+        </div>
+        <script>
+
+            REUNION.init();
+
+            // Set up our results areas based on the services we're querying
+            document.getElementById('results').innerHTML = REUNION.services()
+                .map(service => `<h2>${service.title}</h2><div id="results-${service.id}"></div>`)
+                .join('');
+
+            // Hook into Reunion(TM)
+            document.getElementById('form').addEventListener('submit', (e) => {
+                e.preventDefault();
+                const searchString = document.getElementById('search').value;
+                REUNION.performSearch(searchString, {
+                    searchStarted(service) {
+                        console.log(`Started search on ${service.id} for ${searchString}`);
+                        document.getElementById(`results-${service.id}`).innerHTML = '<p>Searching...</p>';
+                    },
+
+                    searchCompleted(service, results) {
+                        document.getElementById(`results-${service.id}`).innerHTML = results.map(result => `
+                            <li>
+                                <a href="${result.link}">${result.title}</a>
+                                <p>${result.snippet}</p>
+                            </li>`).join('');
+                    },
+
+                    searchFailed(service, reason) {
+                        console.log(`FAILED: search on ${service.id} for ${searchString}, reason: ${reason}`);
+                        document.getElementById(`results-${service.id}`).innerHTML = '<p>Search failed</p>';
+                    }
+                });
+            });
+        </script>
+    </body>
+</html>
