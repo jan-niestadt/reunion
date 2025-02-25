@@ -1,12 +1,21 @@
 REUNION.addService({
+	// The service we're querying
 	id: 'anw',
-	title: 'ANW 1970-heden',
+	title: 'Algemeen Nederlands Woordenboek',
+
+	// The resources this service will search
+	resources: [
+		{
+			id: 'anw',
+			title: 'Hedendaags Nederlands (1970-heden)',
+		}
+	],
 
 	// Function that performs the search and reports the results to the reporter
 	// The reporter is an object that has a method searchCompleted(service, results)
-	search(str, reporter) {
+	search(searchString, reporter) {
 		const url = new URL('https://anw.ivdnt.org/backend/lemmalist?output=json&prefix=A') // @@@ /unified_search  !!!
-		url.search = new URLSearchParams({ trefwoord: str }).toString();
+		url.search = new URLSearchParams({ trefwoord: searchString }).toString();
 		fetch(url)
 			.then(response => response.text())
 			.then(str => new window.DOMParser().parseFromString(ANW_RESPONSE, "text/xml")) // @@@ FAKE RESPONSE (CORS)
@@ -35,7 +44,7 @@ REUNION.addService({
 						});
 					}
 				});
-				reporter.searchCompleted(this, results);
+				reporter.searchCompleted(this.resources[0], results);
 			})
 			.catch(err => {
 				console.error(err);

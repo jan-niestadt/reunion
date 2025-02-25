@@ -10,12 +10,16 @@
         <script src="fakeResponses.js"></script>
         <script src="anw.js"></script>
 
-        <!-- <script src="gtb.js"></script> -->
+        <script src="gtb.js"></script>
 
         <script src="dummy.js"></script>
         <style>
 body {
     font-size: 120%;
+}
+
+a.icon {
+    text-decoration: none;
 }
 
 #results h2 {
@@ -59,9 +63,14 @@ body {
         </div>
         <script>
 
-            // Set up our results areas based on the services we're querying
-            document.getElementById('results').innerHTML = REUNION.services()
-                .map(service => `<h2>${service.title} <span id='num-${service.id}'></span></h2><ul class="results" id="results-${service.id}"></ul>`)
+            // Set up our results areas based on the resources we're querying
+            document.getElementById('results').innerHTML = REUNION.resources
+                .map(resource => 
+                    `<h2>${resource.title}
+                        <span id='num-${resource.id}'></span>
+                    </h2>
+                    <ul class="results" id="results-${resource.id}">
+                    </ul>`)
                 .join('');
 
             // Hook into Reunion(TM)
@@ -70,21 +79,22 @@ body {
                 const searchString = document.getElementById('search').value;
                 REUNION.performSearch(searchString, {
                     searchStarted(service) {
-                        console.log(`Started search on ${service.id} for ${searchString}`);
-                        document.getElementById(`results-${service.id}`).innerHTML = '<p>Searching...</p>';
+                        console.log(`Started search on ${service.id} (resources ${service.resources.map(r => r.id)}) for ${searchString}`);
+                        service.resources.forEach(resource => {
+                            document.getElementById(`results-${resource.id}`).innerHTML = '<p>Searching...</p>';
+                        });
                     },
 
-                    searchCompleted(service, results) {
-                        document.getElementById(`num-${service.id}`).innerText = `[${results.length}]`;
-                        document.getElementById(`results-${service.id}`).innerHTML = results.map(result => {
-                            const hist = result.historischLemma && result.historischLemma !== result.modernLemma ? 
-                                ` (${result.historischLemma})` : '';
+                    searchCompleted(resource, results) {
+                        document.getElementById(`num-${resource.id}`).innerText = `[${results.length}]`;
+                        document.getElementById(`results-${resource.id}`).innerHTML = results.map(result => {
+                            const hist = result.historischLemma && result.historischLemma.toLowerCase() !== result.modernLemma.toLowerCase() ? 
+                                ` ("${result.historischLemma.toLowerCase()}")` : '';
                             const betHtml = result.betekenissen.map(bet => `
                                 <li>
-                                    <a href="${bet.url}" target="_blank">
-                                        <span class='betnr'>${bet.nr}</span>
-                                        ${bet.definitie}
-                                    </a>
+                                    <span class='betnr'>${bet.nr}</span>
+                                    ${bet.definitie}
+                                    <a class='icon' href="${bet.url}" target="_blank">➤</a>
                                 </li>`).join('');
                             return `
                                 <li>
@@ -98,8 +108,10 @@ body {
                     },
 
                     searchFailed(service, reason) {
-                        console.log(`FAILED: search on ${service.id} for ${searchString}, reason: ${reason}`);
-                        document.getElementById(`results-${service.id}`).innerHTML = `<p>Search on ${service.id} failed: ${reason}</p>`;
+                        console.log(`FAILED: search on ${service.id} (resources ${service.resources.map(r => r.id)}) for ${searchString}, reason: ${reason}`);
+                        service.resources.forEach(resource => {
+                            document.getElementById(`results-${resource.id}`).innerHTML = `<p>Search on ${resource.id} failed: ${reason}</p>`;
+                        });
                     }
                 });
             });

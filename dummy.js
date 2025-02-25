@@ -1,6 +1,16 @@
 REUNION.addService({
-    id: 'dummy',
-    title: 'Dummy service',
+	// The service we're querying
+	id: 'dummy',
+	title: 'Dummy service',
+
+	// The resources this service will search
+	resources: [
+		{
+			id: 'dummy',
+			title: 'Dummy resource',
+		}
+	],
+
     search(str, reporter) {
         setTimeout(() => {
             console.log(`searching ${this.id} for ${str}`);

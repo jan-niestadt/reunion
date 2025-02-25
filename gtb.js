@@ -1,41 +1,74 @@
 REUNION.addService({
-	id: 'anw',
-	title: 'ANW 1970-heden',
+	// The service we're querying
+	id: 'gtb',
+	title: 'Historische woordenboeken',
+
+	// The resources this service will search in
+	resources: [
+		{
+			id: 'wnt',
+			title: 'Woordenboek der Nederlandsche Taal (1500-1976)',
+		},
+		{
+			id: 'mnw',
+			title: 'Middelnederlands (1300-1500)',
+		},
+		{
+			id: 'vmnw',
+			title: 'Vroegmiddelnederlands (1200-1300)',
+		},
+		{
+			id: 'onw',
+			title: 'Oudnederlands (500-1200)',
+		},
+	],
 
 	// Function that performs the search and reports the results to the reporter
 	// The reporter is an object that has a method searchCompleted(service, results)
-	search(str, reporter) {
-		const url = new URL('https://anw.ivdnt.org/backend/lemmalist?output=json&prefix=A') // @@@ /unified_search  !!!
-		url.search = new URLSearchParams({ trefwoord: str }).toString();
+	search(searchString, reporter) {
+		const url = new URL('https://anw.ivdnt.org/backend/lemmalist?output=json&prefix=A') // @@@ GTB /unified_search  !!!
+		url.search = new URLSearchParams({ trefwoord: searchString }).toString();
 		fetch(url)
 			.then(response => response.text())
-			.then(str => new window.DOMParser().parseFromString(ANW_RESPONSE, "text/xml")) // @@@ FAKE RESPONSE (CORS)
+			.then(str => {
+				const response = GTB_RESPONSE.replace(/&(nbsp|#160);/g, ' ').replace(/\s\s+/g, ' '); // @@@ FAKE RESPONSE (CORS)
+				return new window.DOMParser().parseFromString(response, "text/xml"); 
+			})
 			.then(data => {
-				console.log(data);
-				const results = [];
-				const arts = findSingleElement(data, 'artikelen');
-				forEachChildElement(arts, art => {
-					if (art.nodeType === Element.ELEMENT_NODE) {
-						const betekenissen = [];
-						const bets = findSingleElement(art, 'betekenissen');
-						forEachChildElement(bets, bet => {
-							betekenissen.push({
-								url: getElementValue(bet, 'url'),
-								niveau: getElementValue(bet, 'niveau'),
-								nr: getElementValue(bet, 'betekenisnummer'),
-								definitie: getElementValue(bet, 'definitie')
-							});
-						});
-						results.push({
-							url: getElementValue(art, 'url'),
-							modernLemma: getElementValue(art, 'modern_lemma'),
-							historischLemma: getElementValue(art, 'historisch_lemma'),
-							woordsoort: getElementValue(art, 'woordsoort'),
-							betekenissen
-						});
+				//console.log(data);
+				forEachElement(data.getElementsByTagName('wdb'), wdb => {
+					const naam = getElementValue(wdb, 'wdb_naam');
+					const resource = this.resources.find(resource => resource.id === naam.toLowerCase());
+					if (!resource) {
+						throw new Error(`wdb_naam from GTB response not found: ${naam}`);
 					}
+					const numArticles = getElementValue(wdb, 'aantal_artikelen');
+					const numItems = getElementValue(wdb, 'aantal_items');
+					const results = [];
+					const arts = findSingleElement(wdb, 'artikelen');
+					forEachChildElement(arts, art => {
+						if (art.nodeType === Element.ELEMENT_NODE) {
+							const betekenissen = [];
+							const bets = findSingleElement(art, 'betekenissen');
+							forEachChildElement(bets, bet => {
+								betekenissen.push({
+									url: getElementValue(bet, 'url'),
+									niveau: getElementValue(bet, 'niveau'),
+									nr: getElementValue(bet, 'betekenisnummer'),
+									definitie: getElementValue(bet, 'definitie')
+								});
+							});
+							results.push({
+								url: getElementValue(art, 'url'),
+								modernLemma: getElementValue(art, 'modern_lemma'),
+								historischLemma: getElementValue(art, 'historisch_lemma'),
+								woordsoort: translateWoordsoort(getElementValue(art, 'woordsoort')),
+								betekenissen
+							});
+						}
+					});
+					reporter.searchCompleted(resource, results);
 				});
-				reporter.searchCompleted(this, results);
 			})
 			.catch(err => {
 				console.error(err);
