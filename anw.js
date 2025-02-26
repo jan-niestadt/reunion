@@ -20,7 +20,7 @@ REUNION.addService({
 			.then(response => response.text())
 			.then(str => new window.DOMParser().parseFromString(ANW_RESPONSE, "text/xml")) // @@@ FAKE RESPONSE (CORS)
 			.then(data => {
-				console.log(data);
+				//console.log(data);
 				const results = [];
 				const arts = findSingleElement(data, 'artikelen');
 				forEachChildElement(arts, art => {
@@ -28,18 +28,26 @@ REUNION.addService({
 						const betekenissen = [];
 						const bets = findSingleElement(art, 'betekenissen');
 						forEachChildElement(bets, bet => {
+							const url = getElementValue(bet, 'url');
+							const nr = getElementValue(bet, 'betekenisnummer');
+							const definitie = getElementValue(bet, 'definitie');
 							betekenissen.push({
-								url: getElementValue(bet, 'url'),
+								url,
 								niveau: getElementValue(bet, 'niveau'),
-								nr: getElementValue(bet, 'betekenisnummer'),
-								definitie: getElementValue(bet, 'definitie')
+								nr,
+								definitie,
+									markdown: `**${nr}** ${definitie} [➤](${url})`
 							});
 						});
+						const lemma = getElementValue(art, 'modern_lemma');
+						const url = getElementValue(art, 'url');
+						const woordsoort = translateWoordsoort(getElementValue(art, 'woordsoort'));
 						results.push({
-							url: getElementValue(art, 'url'),
-							modernLemma: getElementValue(art, 'modern_lemma'),
+							markdown: `[**${lemma}**](${url}) *(${woordsoort})*`,
+							url,
+							modernLemma: lemma,
 							historischLemma: getElementValue(art, 'historisch_lemma'),
-							woordsoort: getElementValue(art, 'woordsoort'),
+							woordsoort,
 							betekenissen
 						});
 					}

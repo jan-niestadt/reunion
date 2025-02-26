@@ -51,17 +51,28 @@ REUNION.addService({
 							const betekenissen = [];
 							const bets = findSingleElement(art, 'betekenissen');
 							forEachChildElement(bets, bet => {
+								const url = getElementValue(bet, 'url');
+								const nr = getElementValue(bet, 'betekenisnummer');
+								const definitie = getElementValue(bet, 'definitie');
 								betekenissen.push({
-									url: getElementValue(bet, 'url'),
+									url,
 									niveau: getElementValue(bet, 'niveau'),
-									nr: getElementValue(bet, 'betekenisnummer'),
-									definitie: getElementValue(bet, 'definitie')
+									nr,
+									definitie,
+									markdown: `**${nr}** ${definitie} [➤](${url})`
 								});
 							});
+							const lemma = getElementValue(art, 'modern_lemma');
+							const url = getElementValue(art, 'url');
+							const woordsoort = translateWoordsoort(getElementValue(art, 'woordsoort'));
+							const historischLemma = getElementValue(art, 'historisch_lemma');
 							results.push({
+								markdown: `[**${lemma}**](${url})` +
+									`${ historischLemma.toLowerCase() !== lemma.toLowerCase() ? ` ("${historischLemma}")` : ''}` +
+									`${ woordsoort ? ` *(${woordsoort})*` : ''}`,
 								url: getElementValue(art, 'url'),
 								modernLemma: getElementValue(art, 'modern_lemma'),
-								historischLemma: getElementValue(art, 'historisch_lemma'),
+								historischLemma,
 								woordsoort: translateWoordsoort(getElementValue(art, 'woordsoort')),
 								betekenissen
 							});

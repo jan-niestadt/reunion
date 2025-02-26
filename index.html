@@ -22,24 +22,25 @@ a.icon {
     text-decoration: none;
 }
 
+#results {
+    max-width: 20cm;
+    margin: 0 auto;
+}
+
 #results h2 {
     font-family: sans-serif;
     font-weight: bold;
     font-size: 1.2em;
-    padding: 0.6rem 0 0.4rem 0;
+    padding: 0.6rem 0.6rem 0.4rem 0.6rem;
     margin: 0;
     background-color: rgb(241, 241, 241);
-}
-
-.results {
-    padding: 0;
 }
 
 .results > li > p > a {
     font-weight: bold;
 }
 
-.results > li > p > .woordsoort {
+.results > li > p > em {
     font-style: italic;
     color: #07606e;
     font-weight: bold;
@@ -79,7 +80,7 @@ a.icon {
                 const searchString = document.getElementById('search').value;
                 REUNION.performSearch(searchString, {
                     searchStarted(service) {
-                        console.log(`Started search on ${service.id} (resources ${service.resources.map(r => r.id)}) for ${searchString}`);
+                        //console.log(`Started search on ${service.id} (resources ${service.resources.map(r => r.id)}) for ${searchString}`);
                         service.resources.forEach(resource => {
                             document.getElementById(`results-${resource.id}`).innerHTML = '<p>Searching...</p>';
                         });
@@ -90,18 +91,24 @@ a.icon {
                         document.getElementById(`results-${resource.id}`).innerHTML = results.map(result => {
                             const hist = result.historischLemma && result.historischLemma.toLowerCase() !== result.modernLemma.toLowerCase() ? 
                                 ` ("${result.historischLemma.toLowerCase()}")` : '';
-                            const betHtml = result.betekenissen.map(bet => `
-                                <li>
-                                    <span class='betnr'>${bet.nr}</span>
-                                    ${bet.definitie}
-                                    <a class='icon' href="${bet.url}" target="_blank">➤</a>
-                                </li>`).join('');
+                            const bet2html = bet => {
+                                if (bet.markdown)  {
+                                    return `<li>${markdownToHtml(bet.markdown)}</li>`;
+                                } else {
+                                    return`<li>
+                                        <span class='betnr'>${bet.nr}</span>
+                                        ${bet.definitie}
+                                        <a class='icon' href="${bet.url}" target="_blank">➤</a>
+                                    </li>`;
+                                }
+                            };
+                            const betHtml = result.betekenissen.map(bet2html).join('');
+                            const artHtml = result.markdown ? `${markdownToHtml(result.markdown)}` : 
+                                `<a href="${result.url}" target="_blank">${result.modernLemma}</a>${hist}
+                                <span class='woordsoort'>${result.woordsoort}</span>`;
                             return `
                                 <li>
-                                    <p>
-                                        <a href="${result.url}" target="_blank">${result.modernLemma}</a>${hist}
-                                        <span class='woordsoort'>${result.woordsoort}</span>
-                                    </p>
+                                    <p>${artHtml}</p>
                                     <ul class="bet">${betHtml}</ul>
                                 </li>`;
                         }).join('');

@@ -13,7 +13,7 @@ REUNION.addService({
 
     search(str, reporter) {
         setTimeout(() => {
-            console.log(`searching ${this.id} for ${str}`);
+            //console.log(`searching ${this.id} for ${str}`);
             reporter.searchFailed(this, 'Service not available');
             // reporter.searchCompleted(this, [{
             //     modernLemma: 'Result 1',
