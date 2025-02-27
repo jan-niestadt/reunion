@@ -8,6 +8,7 @@
         <script src="xml.js"></script>
 
         <script src="services/fakeResponses.js"></script>
+        <script src="services/combi.js"></script>
         <script src="services/anw.js"></script>
         <script src="services/gtb.js"></script>
         <script src="services/dummy.js"></script>
@@ -146,6 +147,7 @@ a.icon {
                     searchStarted(service) {
                         //console.log(`Started search on ${service.id} (resources ${service.resources.map(r => r.id)}) for ${searchString}`);
                         service.resources.forEach(resource => {
+                            document.querySelectorAll(`.num-${resource.id}`).forEach(el => el.innerText = `[…]`);
                             document.getElementById(`results-${resource.id}`).innerHTML = '<p>Searching...</p>';
                         });
                     },
@@ -168,7 +170,7 @@ a.icon {
                                     </li>`;
                                 }
                             };
-                            const betHtml = result.betekenissen.map(bet2html).join('');
+                            const betHtml = (result.betekenissen || []).map(bet2html).join('');
                             const artHtml = result.markdown ? `${markdownToHtml(result.markdown)}` : 
                                 `<a href="${result.url}" target="_blank">${result.modernLemma}</a>${hist}
                                 <span class='woordsoort'>${result.woordsoort}</span>`;
@@ -183,6 +185,7 @@ a.icon {
                     searchFailed(service, reason) {
                         console.log(`FAILED: search on ${service.id} (resources ${service.resources.map(r => r.id)}) for ${searchString}, reason: ${reason}`);
                         service.resources.forEach(resource => {
+                            document.querySelectorAll(`.num-${resource.id}`).forEach(el => el.innerText = `[⨯]`);
                             document.getElementById(`results-${resource.id}`).innerHTML = `<p>Search on ${resource.id} failed: ${reason}</p>`;
                         });
                     }

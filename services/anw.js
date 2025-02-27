@@ -33,22 +33,22 @@ REUNION.addService({
 							const nr = getElementValue(bet, 'betekenisnummer');
 							const definitie = getElementValue(bet, 'definitie');
 							betekenissen.push({
-								url,
-								niveau: getElementValue(bet, 'niveau'),
-								nr,
-								definitie,
-									markdown: `**${nr}** ${definitie} [➤](${url})`
+								// url,
+								// niveau: getElementValue(bet, 'niveau'),
+								// nr,
+								// definitie,
+								markdown: `**${nr}** ${definitie} [➤](${url})`
 							});
 						});
 						const lemma = getElementValue(art, 'modern_lemma');
 						const url = getElementValue(art, 'url');
 						const woordsoort = translateWoordsoort(getElementValue(art, 'woordsoort'));
 						results.push({
-							markdown: `[**${lemma}**](${url}) *(${woordsoort})*`,
-							url,
-							modernLemma: lemma,
-							historischLemma: getElementValue(art, 'historisch_lemma'),
-							woordsoort,
+							markdown: `[**${lemma}**](${url}) *${woordsoort}*`,
+							// url,
+							// modernLemma: lemma,
+							// historischLemma: getElementValue(art, 'historisch_lemma'),
+							// woordsoort,
 							betekenissen
 						});
 					}
