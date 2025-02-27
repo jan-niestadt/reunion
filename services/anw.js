@@ -7,7 +7,8 @@ REUNION.addService({
 	resources: [
 		{
 			id: 'anw',
-			title: 'Hedendaags Nederlands (1970-heden)',
+			titleShort: 'Hedendaag (1970-nu)',
+			title: 'Hedendaags Nederlands (1970-nu)',
 		}
 	],
 

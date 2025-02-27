@@ -7,18 +7,22 @@ REUNION.addService({
 	resources: [
 		{
 			id: 'wnt',
+			titleShort: 'WNT (1500-1976)',
 			title: 'Woordenboek der Nederlandsche Taal (1500-1976)',
 		},
 		{
 			id: 'mnw',
+			titleShort: 'Middelned. (1300-1500)',
 			title: 'Middelnederlands (1300-1500)',
 		},
 		{
 			id: 'vmnw',
+			titleShort: 'Vroegmiddelned. (1200-1300)',
 			title: 'Vroegmiddelnederlands (1200-1300)',
 		},
 		{
 			id: 'onw',
+			titleShort: 'Oudned. (500-1200)',
 			title: 'Oudnederlands (500-1200)',
 		},
 	],

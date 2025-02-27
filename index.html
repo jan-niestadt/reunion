@@ -7,15 +7,48 @@
 
         <script src="xml.js"></script>
 
-        <script src="fakeResponses.js"></script>
-        <script src="anw.js"></script>
-
-        <script src="gtb.js"></script>
-
-        <script src="dummy.js"></script>
+        <script src="services/fakeResponses.js"></script>
+        <script src="services/anw.js"></script>
+        <script src="services/gtb.js"></script>
+        <script src="services/dummy.js"></script>
         <style>
+
+@font-face {
+    font-family: 'schoolboek';
+
+    src: url('font/Schoolboek-Regular.eot');
+    src: url('font/Schoolboek-Regular.eot?#iefix') format('embedded-opentype'), 
+         url('font/Schoolboek-Regular.woff') format('woff'), 
+         url('font/Schoolboek-Regular.ttf') format('truetype');
+
+    font-weight: normal;
+    font-style: normal;
+    font-stretch: normal;
+}
+
+html {
+    scroll-behavior: smooth;
+}
+
 body {
     font-size: 120%;
+    font-family: "Times New Roman", Georgia, Serif !important;
+    text-rendering: optimizeLegibility;
+}
+
+h1, h2, h3 {
+    font-weight: normal;
+    font-family: 'schoolboek', sans-serif;
+}
+
+form {
+    text-align: center;
+}
+form input {
+    font-size: 100%;
+    padding: 0.5rem;
+    border: 1px solid rgb(190, 190, 190);
+    margin-bottom: 1rem;
 }
 
 a.icon {
@@ -25,11 +58,24 @@ a.icon {
 #results {
     max-width: 20cm;
     margin: 0 auto;
+    display: none;
+}
+#results.show {
+    display: block;
+}
+
+.resourceNav {
+    background-color: rgb(241, 241, 241);
+    padding: 0.6rem 0.6rem 0.4rem 0.6rem;
+}
+.resourceNav a {
+    font-family: 'schoolboek', sans-serif;
+    margin-left: 1rem;
 }
 
 #results h2 {
     font-family: sans-serif;
-    font-weight: bold;
+    font-weight: normal;
     font-size: 1.2em;
     padding: 0.6rem 0.6rem 0.4rem 0.6rem;
     margin: 0;
@@ -53,31 +99,49 @@ a.icon {
         </style>
     </head>
     <body>
-        <h1>Unified search ][ - The API strikes back!</h1>
-        <p>
-            <form id="form">
-                <input id="search" type="text" name="search" placeholder="Search...">
-                <input type="submit" value="Search">
-            </form>
-        </p>
+        <h1>/instituut voor de Nederlandse Taal/</h1>
+        <h2>Zoeken in woordenboeken</h2>
+        <form id="form">
+            <input id="search" type="text" name="search" value="koe" placeholder="Search...">
+            <input type="submit" value="Search">
+        </form>
         <div id="results">
         </div>
         <script>
 
-            // Set up our results areas based on the resources we're querying
-            document.getElementById('results').innerHTML = REUNION.resources
-                .map(resource => 
-                    `<h2>${resource.title}
-                        <span id='num-${resource.id}'></span>
-                    </h2>
-                    <ul class="results" id="results-${resource.id}">
-                    </ul>`)
-                .join('');
+            let currentSearchString = undefined;
 
-            // Hook into Reunion(TM)
-            document.getElementById('form').addEventListener('submit', (e) => {
-                e.preventDefault();
-                const searchString = document.getElementById('search').value;
+            let totalResults = 0;
+
+            // Set up our results areas based on the resources we're querying
+            document.getElementById('results').innerHTML = 
+                `<div class='resourceNav'>` +
+                REUNION.resources.map(resource => `
+                    <a href="#resource-${resource.id}"
+                    >${(resource.titleShort || resource.title).replaceAll(/\(([^)]+)\)/g, '<small>$1</small>')}</a>
+                    <span class='num-${resource.id}'></span>
+                `).join('') + `
+                </div>
+                <p>Trefwoorden voor: <span id='searchString'></span> <span id='totalResults'></span></p>` + 
+                REUNION.resources
+                    .map(resource => 
+                        `<div class='resource' id='resource-${resource.id}'>
+                            <h2>${resource.title}
+                                <span class='num-${resource.id}'></span>
+                            </h2>
+                            <ul class="results" id="results-${resource.id}">
+                            </ul>
+                        </div>`)
+                    .join('');
+
+            function performSearch(searchString) {
+                if (currentSearchString === searchString)
+                    return; // nothing to do
+                currentSearchString = searchString;
+                totalResults = 0;
+                console.log(`Searching for ${searchString}`);
+                document.getElementById('results').classList.add('show');
+                document.getElementById('searchString').innerText = searchString;
                 REUNION.performSearch(searchString, {
                     searchStarted(service) {
                         //console.log(`Started search on ${service.id} (resources ${service.resources.map(r => r.id)}) for ${searchString}`);
@@ -87,7 +151,9 @@ a.icon {
                     },
 
                     searchCompleted(resource, results) {
-                        document.getElementById(`num-${resource.id}`).innerText = `[${results.length}]`;
+                        totalResults += results.length;
+                        document.getElementById('totalResults').innerText = `[${totalResults}]`;
+                        document.querySelectorAll(`.num-${resource.id}`).forEach(el => el.innerText = `[${results.length}]`);
                         document.getElementById(`results-${resource.id}`).innerHTML = results.map(result => {
                             const hist = result.historischLemma && result.historischLemma.toLowerCase() !== result.modernLemma.toLowerCase() ? 
                                 ` ("${result.historischLemma.toLowerCase()}")` : '';
@@ -121,6 +187,32 @@ a.icon {
                         });
                     }
                 });
+            }
+
+            window.addEventListener("popstate", (event) => {
+                const url = new URL(location);
+                const searchString = url.searchParams.get("query");
+                document.getElementById('search').value = searchString;
+                performSearch(searchString);
+            });
+            window.addEventListener("DOMContentLoaded", (event) => {
+                const url = new URL(location);
+                const searchString = url.searchParams.get("query");
+                document.getElementById('search').value = searchString;
+                performSearch(searchString);
+            });
+
+            // Hook into Reunion(TM)
+            document.getElementById('form').addEventListener('submit', (e) => {
+                e.preventDefault();
+
+                const searchString = document.getElementById('search').value;
+
+                const url = new URL(location);
+                url.searchParams.set("query", searchString);
+                history.pushState({}, "", url);
+
+                performSearch(searchString);
             });
         </script>
     </body>
