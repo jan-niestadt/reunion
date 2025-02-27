@@ -27,8 +27,6 @@ REUNION.addService({
 		fetch(url)
 			.then(response => response.json())
 			.then(data => {
-				console.log(data);
-
                 const results = data.results.map(result => {
                     // Also encode parentheses inside markdown!
                     const titleEnc = encodeURI(result.title).replace(/\(/, '%28').replace(/\)/, '%29');

@@ -11,7 +11,7 @@
         <script src="services/combi.js"></script>
         <script src="services/anw.js"></script>
         <script src="services/gtb.js"></script>
-        <script src="services/dummy.js"></script>
+        <script src="services/failExample.js"></script>
         <style>
 
 @font-face {
@@ -145,7 +145,7 @@ a.icon {
                 document.getElementById('searchString').innerText = searchString;
                 REUNION.performSearch(searchString, {
                     searchStarted(service) {
-                        //console.log(`Started search on ${service.id} (resources ${service.resources.map(r => r.id)}) for ${searchString}`);
+                        //console.log(`Started search on ${service.title} (resources ${service.resources.map(r => r.id)}) for ${searchString}`);
                         service.resources.forEach(resource => {
                             document.querySelectorAll(`.num-${resource.id}`).forEach(el => el.innerText = `[…]`);
                             document.getElementById(`results-${resource.id}`).innerHTML = '<p>Searching...</p>';
@@ -183,10 +183,10 @@ a.icon {
                     },
 
                     searchFailed(service, reason) {
-                        console.log(`FAILED: search on ${service.id} (resources ${service.resources.map(r => r.id)}) for ${searchString}, reason: ${reason}`);
+                        console.log(`FAILED: search on ${service.title} (resources: ${service.resources.map(r => r.title)}) for ${searchString}, reason: ${reason}`);
                         service.resources.forEach(resource => {
                             document.querySelectorAll(`.num-${resource.id}`).forEach(el => el.innerText = `[⨯]`);
-                            document.getElementById(`results-${resource.id}`).innerHTML = `<p>Search on ${resource.id} failed: ${reason}</p>`;
+                            document.getElementById(`results-${resource.id}`).innerHTML = `<p>Search on '${resource.title}' failed: ${reason}</p>`;
                         });
                     }
                 });
