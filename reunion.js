@@ -19,7 +19,24 @@ const REUNION = {
     performSearch(searchString, reporter) {
         this._services.forEach(service => {
             reporter.searchStarted(service);
-            service.search(searchString, reporter);
+            service.search(searchString, {
+                searchCompleted(resource, results) {
+                    results.forEach(result => {
+                        if (result.markdown) {
+                            result.html = markdownToHtml(result.markdown);
+                        }
+                        (result.betekenissen || []).forEach(betekenis => {
+                            if (betekenis.markdown) {
+                                betekenis.html = markdownToHtml(betekenis.markdown);
+                            }
+                        });
+                    })
+                    reporter.searchCompleted(resource, results);
+                },
+                searchFailed(service, error) {
+                    reporter.searchFailed(service, error);
+                }
+            });
         });
     }
 }
@@ -29,4 +46,51 @@ function markdownToHtml(markdown) {
         .replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>')
         .replace(/\*(.*?)\*/g, '<em>$1</em>')
         .replace(/\[(.*?)\]\((.*?)\)/g, '<a href="$2" target="_blank">$1</a>');
+}
+
+
+
+const WOORDSOORT_REPLACE = [
+	// (see ArtikelObject in unified-search repo for current list)
+	{
+		find: /znw\.?/,
+		replace: 'zelfstandig naamwoord',
+	},
+	{
+		find: /\(v\.?\)/,
+		replace: ' (vrouwelijk)',
+	},
+	{
+		find: /\(m\.?\)/,
+		replace: ' (vrouwelijk)',
+	},
+	{
+		find: /\(o\.?\)/,
+		replace: ' (vrouwelijk)',
+	},
+	{
+		find: 'v.',
+		replace: ' (vrouwelijk)',
+	},
+	{
+		find: 'm.',
+		replace: ' (mannelijk)',
+	},
+	{
+		find: 'o.',
+		replace: ' (onzijdig)',
+	},
+	{
+		find: '&nbsp;',
+		replace: '',
+	},
+];
+
+function translateWoordsoort(woordsoort) {
+	if (woordsoort) {
+		WOORDSOORT_REPLACE.forEach(o => {
+			woordsoort = woordsoort.replace(o.find, o.replace);
+		});
+	}
+	return woordsoort;
 }

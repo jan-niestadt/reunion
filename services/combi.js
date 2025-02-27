@@ -20,7 +20,7 @@ REUNION.addService({
 		const url = new URL('https://woordcombinaties.ivdnt.org/solr-api/search') // @@@ /unified_search  !!!
 		url.search = new URLSearchParams({
             'q.lemma-tokenized': searchString,
-            rows: 10000,
+            rows: 1000,
             sort: 'lemma asc',
             fl: 'pid,title,lemma-clean,lemma-pos,lemma-addition,lemma-patterns,lemma-zich,part-of-speech,showPatterns'
         }).toString();

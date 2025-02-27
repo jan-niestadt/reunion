@@ -24,7 +24,7 @@ REUNION.addService({
 			search_in: 'concepts',
 			word: searchString,
 			start: 0,
-			rows: 20
+			rows: 1000
         }).toString();
 		fetch(url)
 			.then(response => response.json())

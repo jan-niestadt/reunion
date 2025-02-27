@@ -2,229 +2,37 @@
 <html>
     <head>
         <title>Home</title>
+        <meta charset="utf-8">
+        <link rel="stylesheet" href="style.css">
 
+        <!-- Our main search library -->
         <script src="reunion.js"></script>
 
-        <script src="xml.js"></script>
+        <!-- Helpers for XML APIs -->
+        <script src="helpers/xml.js"></script>
 
-        <script src="services/fakeResponses.js"></script>
+        <!-- Our services -->
         <script src="services/dsdd.js"></script>
         <script src="services/combi.js"></script>
         <script src="services/anw.js"></script>
         <script src="services/gtb.js"></script>
-        <script src="services/failExample.js"></script>
-        <style>
+        <script src="services/fail.js"></script>
 
-@font-face {
-    font-family: 'schoolboek';
-
-    src: url('font/Schoolboek-Regular.eot');
-    src: url('font/Schoolboek-Regular.eot?#iefix') format('embedded-opentype'), 
-         url('font/Schoolboek-Regular.woff') format('woff'), 
-         url('font/Schoolboek-Regular.ttf') format('truetype');
-
-    font-weight: normal;
-    font-style: normal;
-    font-stretch: normal;
-}
-
-html {
-    scroll-behavior: smooth;
-}
-
-body {
-    font-size: 120%;
-    font-family: "Times New Roman", Georgia, Serif !important;
-    text-rendering: optimizeLegibility;
-}
-
-h1, h2, h3 {
-    font-weight: normal;
-    font-family: 'schoolboek', sans-serif;
-}
-
-form {
-    text-align: center;
-}
-form input {
-    font-size: 100%;
-    padding: 0.5rem;
-    border: 1px solid rgb(190, 190, 190);
-    margin-bottom: 1rem;
-}
-
-a.icon {
-    text-decoration: none;
-}
-
-#results {
-    max-width: 20cm;
-    margin: 0 auto;
-    display: none;
-}
-#results.show {
-    display: block;
-}
-
-.resourcesNav {
-    background-color: rgb(241, 241, 241);
-    padding: 0.6rem 0.6rem 0.4rem 0.6rem;
-}
-.resourcesNav a {
-    font-family: 'schoolboek', sans-serif;
-    margin-left: 1rem;
-}
-
-.resourceNav {
-    white-space: nowrap;
-}
-
-#results h2 {
-    font-family: sans-serif;
-    font-weight: normal;
-    font-size: 1.2em;
-    padding: 0.6rem 0.6rem 0.4rem 0.6rem;
-    margin: 0;
-    background-color: rgb(241, 241, 241);
-}
-
-.results > li > p > a {
-    font-weight: bold;
-}
-
-.results > li > p > em {
-    font-style: italic;
-    color: #07606e;
-    font-weight: bold;
-}
-
-.results .betnr {
-    font-weight: bold;
-}
-
-        </style>
     </head>
     <body>
         <h1>/instituut voor de Nederlandse Taal/</h1>
-        <h2>Zoeken in woordenboeken</h2>
+
+        <h2>Zoeken in onze taalmaterialen</h2>
+
         <form id="form">
             <input id="search" type="text" name="search" value="koe" placeholder="Search...">
             <input type="submit" value="Search">
         </form>
+
         <div id="results">
         </div>
-        <script>
 
-            let currentSearchString = undefined;
-
-            let totalResults = 0;
-
-            // Set up our results areas based on the resources we're querying
-            document.getElementById('results').innerHTML = 
-                `<div class='resourcesNav'>` +
-                REUNION.resources.map(resource => `
-                    <span title="${resource.title}" class='resourceNav' id='nav-${resource.id}'>
-                        <a href="#resource-${resource.id}"
-                            >${(resource.titleShort || resource.title)
-                                .replaceAll(/\(([^)]+)\)/g, '<small>$1</small>')}</a>
-                        <span class='num-${resource.id}'></span>
-                    </span>
-                `).join('') + `
-                </div>
-                <p>Trefwoorden voor: <span id='searchString'></span> <span id='totalResults'></span></p>` + 
-                REUNION.resources
-                    .map(resource => 
-                        `<div class='resource' id='resource-${resource.id}'>
-                            <h2>${resource.title}
-                                <span class='num-${resource.id}'></span>
-                            </h2>
-                            <ul class="results" id="results-${resource.id}">
-                            </ul>
-                        </div>`)
-                    .join('');
-
-            function performSearch(searchString) {
-                if (currentSearchString === searchString)
-                    return; // nothing to do
-                currentSearchString = searchString;
-                totalResults = 0;
-                console.log(`Searching for ${searchString}`);
-                document.getElementById('results').classList.add('show');
-                document.getElementById('searchString').innerText = searchString;
-                REUNION.performSearch(searchString, {
-                    searchStarted(service) {
-                        //console.log(`Started search on ${service.title} (resources ${service.resources.map(r => r.id)}) for ${searchString}`);
-                        service.resources.forEach(resource => {
-                            document.querySelectorAll(`.num-${resource.id}`).forEach(el => el.innerText = `[…]`);
-                            document.getElementById(`results-${resource.id}`).innerHTML = '<p>Searching...</p>';
-                        });
-                    },
-
-                    searchCompleted(resource, results) {
-                        totalResults += results.length;
-                        document.getElementById('totalResults').innerText = `[${totalResults}]`;
-                        document.querySelectorAll(`.num-${resource.id}`).forEach(el => el.innerText = `[${results.length}]`);
-                        document.getElementById(`results-${resource.id}`).innerHTML = results.map(result => {
-                            const hist = result.historischLemma && result.historischLemma.toLowerCase() !== result.modernLemma.toLowerCase() ? 
-                                ` ("${result.historischLemma.toLowerCase()}")` : '';
-                            const bet2html = bet => {
-                                if (bet.markdown)  {
-                                    return `<li>${markdownToHtml(bet.markdown)}</li>`;
-                                } else {
-                                    return`<li>
-                                        <span class='betnr'>${bet.nr}</span>
-                                        ${bet.definitie}
-                                        <a class='icon' href="${bet.url}" target="_blank">➤</a>
-                                    </li>`;
-                                }
-                            };
-                            const betHtml = (result.betekenissen || []).map(bet2html).join('');
-                            const artHtml = result.markdown ? `${markdownToHtml(result.markdown)}` : 
-                                `<a href="${result.url}" target="_blank">${result.modernLemma}</a>${hist}
-                                <span class='woordsoort'>${result.woordsoort}</span>`;
-                            return `
-                                <li>
-                                    <p>${artHtml}</p>
-                                    <ul class="bet">${betHtml}</ul>
-                                </li>`;
-                        }).join('');
-                    },
-
-                    searchFailed(service, reason) {
-                        console.log(`FAILED: search on ${service.title} (resources: ${service.resources.map(r => r.title)}) for ${searchString}, reason: ${reason}`);
-                        service.resources.forEach(resource => {
-                            document.querySelectorAll(`.num-${resource.id}`).forEach(el => el.innerText = `[⨯]`);
-                            document.getElementById(`results-${resource.id}`).innerHTML = `<p>Search on '${resource.title}' failed: ${reason}</p>`;
-                        });
-                    }
-                });
-            }
-
-            window.addEventListener("popstate", (event) => {
-                const url = new URL(location);
-                const searchString = url.searchParams.get("query");
-                document.getElementById('search').value = searchString;
-                performSearch(searchString);
-            });
-            window.addEventListener("DOMContentLoaded", (event) => {
-                const url = new URL(location);
-                const searchString = url.searchParams.get("query");
-                document.getElementById('search').value = searchString;
-                performSearch(searchString);
-            });
-
-            // Hook into Reunion(TM)
-            document.getElementById('form').addEventListener('submit', (e) => {
-                e.preventDefault();
-
-                const searchString = document.getElementById('search').value;
-
-                const url = new URL(location);
-                url.searchParams.set("query", searchString);
-                history.pushState({}, "", url);
-
-                performSearch(searchString);
-            });
-        </script>
+        <!-- Set up the search system -->
+        <script src="index.js"></script>
     </body>
 </html>

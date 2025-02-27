@@ -1,0 +1,82 @@
+@font-face {
+    font-family: 'schoolboek';
+
+    src: url('font/Schoolboek-Regular.eot');
+    src: url('font/Schoolboek-Regular.eot?#iefix') format('embedded-opentype'), 
+         url('font/Schoolboek-Regular.woff') format('woff'), 
+         url('font/Schoolboek-Regular.ttf') format('truetype');
+
+    font-weight: normal;
+    font-style: normal;
+    font-stretch: normal;
+}
+
+html {
+    scroll-behavior: smooth;
+}
+
+body {
+    font-size: 120%;
+    font-family: "Times New Roman", Georgia, Serif !important;
+    text-rendering: optimizeLegibility;
+}
+
+h1, h2, h3 {
+    font-weight: normal;
+    font-family: 'schoolboek', sans-serif;
+}
+
+form {
+    text-align: center;
+}
+form input {
+    font-size: 100%;
+    padding: 0.5rem;
+    border: 1px solid rgb(190, 190, 190);
+    margin-bottom: 1rem;
+}
+
+a.icon {
+    text-decoration: none;
+}
+
+#results {
+    max-width: 20cm;
+    margin: 0 auto;
+}
+
+.resourcesNav {
+    background-color: rgb(241, 241, 241);
+    padding: 0.6rem 0.6rem 0.4rem 0.6rem;
+}
+.resourcesNav a {
+    font-family: 'schoolboek', sans-serif;
+    margin-left: 1rem;
+}
+
+.resourceNav {
+    white-space: nowrap;
+}
+
+#results h2 {
+    font-family: sans-serif;
+    font-weight: normal;
+    font-size: 1.2em;
+    padding: 0.6rem 0.6rem 0.4rem 0.6rem;
+    margin: 0;
+    background-color: rgb(241, 241, 241);
+}
+
+.results > li > p > a {
+    font-weight: bold;
+}
+
+.results > li > p > em {
+    font-style: italic;
+    color: #07606e;
+    font-weight: bold;
+}
+
+.results .betnr {
+    font-weight: bold;
+}
