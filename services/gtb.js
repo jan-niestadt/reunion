@@ -12,17 +12,17 @@ REUNION.addService({
 		},
 		{
 			id: 'mnw',
-			titleShort: 'Middelned. (1300-1500)',
+			titleShort: 'MNW (1300-1500)',
 			title: 'Middelnederlands (1300-1500)',
 		},
 		{
 			id: 'vmnw',
-			titleShort: 'Vroegmiddelned. (1200-1300)',
+			titleShort: 'VMNW (1200-1300)',
 			title: 'Vroegmiddelnederlands (1200-1300)',
 		},
 		{
 			id: 'onw',
-			titleShort: 'Oudned. (500-1200)',
+			titleShort: 'ONW (500-1200)',
 			title: 'Oudnederlands (500-1200)',
 		},
 	],

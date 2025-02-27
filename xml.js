@@ -62,8 +62,10 @@ const WOORDSOORT_REPLACE = [
 ];
 
 function translateWoordsoort(woordsoort) {
-	WOORDSOORT_REPLACE.forEach(o => {
-		woordsoort = woordsoort.replace(o.find, o.replace);
-	});
+	if (woordsoort) {
+		WOORDSOORT_REPLACE.forEach(o => {
+			woordsoort = woordsoort.replace(o.find, o.replace);
+		});
+	}
 	return woordsoort;
 }

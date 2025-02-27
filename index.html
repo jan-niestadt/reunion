@@ -8,6 +8,7 @@
         <script src="xml.js"></script>
 
         <script src="services/fakeResponses.js"></script>
+        <script src="services/dsdd.js"></script>
         <script src="services/combi.js"></script>
         <script src="services/anw.js"></script>
         <script src="services/gtb.js"></script>
@@ -65,13 +66,17 @@ a.icon {
     display: block;
 }
 
-.resourceNav {
+.resourcesNav {
     background-color: rgb(241, 241, 241);
     padding: 0.6rem 0.6rem 0.4rem 0.6rem;
 }
-.resourceNav a {
+.resourcesNav a {
     font-family: 'schoolboek', sans-serif;
     margin-left: 1rem;
+}
+
+.resourceNav {
+    white-space: nowrap;
 }
 
 #results h2 {
@@ -116,11 +121,14 @@ a.icon {
 
             // Set up our results areas based on the resources we're querying
             document.getElementById('results').innerHTML = 
-                `<div class='resourceNav'>` +
+                `<div class='resourcesNav'>` +
                 REUNION.resources.map(resource => `
-                    <a href="#resource-${resource.id}"
-                    >${(resource.titleShort || resource.title).replaceAll(/\(([^)]+)\)/g, '<small>$1</small>')}</a>
-                    <span class='num-${resource.id}'></span>
+                    <span title="${resource.title}" class='resourceNav' id='nav-${resource.id}'>
+                        <a href="#resource-${resource.id}"
+                            >${(resource.titleShort || resource.title)
+                                .replaceAll(/\(([^)]+)\)/g, '<small>$1</small>')}</a>
+                        <span class='num-${resource.id}'></span>
+                    </span>
                 `).join('') + `
                 </div>
                 <p>Trefwoorden voor: <span id='searchString'></span> <span id='totalResults'></span></p>` + 
