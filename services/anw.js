@@ -56,7 +56,7 @@ REUNION.addService({
 			})
 			.catch(err => {
 				console.error(err);
-				reporter.searchFailed(this, err);
+				reporter.searchFailed(this.resources[0], err);
 			});
 	},
 });

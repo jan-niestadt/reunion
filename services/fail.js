@@ -12,7 +12,7 @@ REUNION.addService({
 
     search(str, reporter) {
         setTimeout(() => {
-            reporter.searchFailed(this, 'Service not available');
+            reporter.searchFailed(this.resources[0], 'Service not available');
         }, Math.random() * 2000);
     },
 });

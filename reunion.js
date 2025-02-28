@@ -16,9 +16,22 @@ const REUNION = {
         return this._services.flatMap(service => service.resources);
     },
 
+    report(obj) {
+        if (obj.id) {
+            if (obj.service && obj.service.id !== obj.id) {
+                // multi-resource service
+                return `${obj.service.id}.${obj.id}`;
+            }
+            return obj.id;
+        }
+        return `Object:${JSON.stringify(obj)}`;
+    },
+
     performSearch(searchString, reporter) {
         this._services.forEach(service => {
-            reporter.searchStarted(service);
+            service.resources.forEach(resource => {
+                reporter.searchStarted(resource);
+            });
             service.search(searchString, {
                 searchCompleted(resource, results) {
                     results.forEach(result => {
@@ -33,8 +46,8 @@ const REUNION = {
                     })
                     reporter.searchCompleted(resource, results);
                 },
-                searchFailed(service, error) {
-                    reporter.searchFailed(service, error);
+                searchFailed(resource, reason) {
+                    reporter.searchFailed(resource, reason);
                 }
             });
         });

@@ -5,7 +5,7 @@ let lastSearchString = undefined;
 let totalResults = 0;
 
 function setNumberOfResults(value, resource) {
-    const txt = value ? ` (${value})` : '';
+    const txt = value ? `[${value}]` : '';
     if (resource)
         document.querySelectorAll(`.num-${resource.id}`).forEach(el => el.innerText = txt);
     else
@@ -49,12 +49,10 @@ function performSearch(searchString) {
     REUNION.performSearch(searchString, {
 
         // Called when the search is started on a service
-        searchStarted(service) {
-            //console.log(`Started search on ${service.id} (resources ${service.resources.map(r => r.id)}) for ${searchString}`);
-            service.resources.forEach(resource => {
-                setNumberOfResults('…', resource);
-                setResultsHtml('<p>Searching...</p>', resource);
-            });
+        searchStarted(resource) {
+            console.log(`Started search on ${REUNION.report(resource)} for ${searchString}`);
+            setNumberOfResults('…', resource);
+            setResultsHtml('<p>Searching...</p>', resource);
         },
 
         // Called when the search is completed for a resource
@@ -76,12 +74,10 @@ function performSearch(searchString) {
         },
 
         // Called when the search failed for a service
-        searchFailed(service, reason) {
-            console.log(`FAILED: search on ${service.id} (resources: ${service.resources.map(r => r.name)}) for ${searchString}, reason: ${reason}`);
-            service.resources.forEach(resource => {
-                setNumberOfResults('⨯', resource);
-                setResultsHtml(`<p>Search on '${resource.name}' failed: ${reason}</p>`, resource);
-            });
+        searchFailed(resource, reason) {
+            console.log(`FAILED: search on ${REUNION.report(resource)} for ${searchString}, reason: ${reason}`);
+            setNumberOfResults('⨯', resource);
+            setResultsHtml(`<p>Search on '${resource.name}' failed: ${reason}</p>`, resource);
         }
     });
 }
