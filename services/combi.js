@@ -28,12 +28,12 @@ REUNION.addService({
 			.then(data => {
                 const results = data.results.map(result => {
                     // Also encode parentheses inside markdown!
-                    const titleEnc = encodeURI(result.title).replace(/\(/, '%28').replace(/\)/, '%29');
-                    const url = `https://woordcombinaties.ivdnt.org/docs/${titleEnc}/${result.pid}`
+					const lemma = result['lemma-clean'];
+                    const url = `https://woordcombinaties.ivdnt.org/docs/${encodeURI(result.title)}/${result.pid}`
                     const woordsoort = translateWoordsoort(result['part-of-speech']);
                     const optAdd = result['lemma-addition'] ? ` (${result['lemma-addition']})` : '';
                     return {
-                        markdown: `[**${result['lemma-clean']}**](${url})${optAdd} *${woordsoort}*`
+                        markdown: `${mdLink(lemma, url)}${optAdd} ${mdItalic(woordsoort)}`
                     };
                 });
 				reporter.searchCompleted(this.resources[0], results);

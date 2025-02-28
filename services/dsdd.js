@@ -38,7 +38,7 @@ REUNION.addService({
 					}));
 					betekenissen.push({ markdown: `...` });
                     return {
-                        markdown: `[**${concept.display}**](${url}) - ${concept.definition}`,
+                        markdown: `${mdLink(concept.display, url)} - ${concept.definition}`,
 						betekenissen
                     };
                 });

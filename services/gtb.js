@@ -58,11 +58,7 @@ REUNION.addService({
 								const nr = getElementValue(bet, 'betekenisnummer');
 								const definitie = getElementValue(bet, 'definitie');
 								betekenissen.push({
-									// url,
-									// niveau: getElementValue(bet, 'niveau'),
-									// nr,
-									// definitie,
-									markdown: `**${nr}** ${definitie} [➤](${url})`
+									markdown: `${mdBold(nr)} ${definitie} ${mdLink('➤', url)}`
 								});
 							});
 							const lemma = getElementValue(art, 'modern_lemma');
@@ -70,13 +66,9 @@ REUNION.addService({
 							const woordsoort = translateWoordsoort(getElementValue(art, 'woordsoort'));
 							const historischLemma = getElementValue(art, 'historisch_lemma');
 							results.push({
-								markdown: `[**${lemma}**](${url})` +
+								markdown: mdLink(lemma, url) +
 									`${ historischLemma.toLowerCase() !== lemma.toLowerCase() ? ` ("${historischLemma}")` : ''}` +
-									`${ woordsoort ? ` *${woordsoort}*` : ''}`,
-								// url,
-								// modernLemma: getElementValue(art, 'modern_lemma'),
-								// historischLemma,
-								// woordsoort,
+									`${ woordsoort ? ` ${mdItalic(woordsoort)}` : ''}`,
 								betekenissen
 							});
 						}

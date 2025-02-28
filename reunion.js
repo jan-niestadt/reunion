@@ -54,11 +54,22 @@ const REUNION = {
     }
 }
 
+function mdLink(text, url) {
+    return `[${text}](${url.replace(/\(/g, '%28').replace(/\)/g, '%29')})`;
+}
+function mdBold(text) {
+    return `**${text.replace(/\*\*/, '\\*\\*')}**`;
+}
+function mdItalic(text) {
+    return `*${text.replace(/\*/, '\\*')}*`;
+}
+
 function markdownToHtml(markdown) {
+    console.log(markdown);
     return markdown
         .replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>')
         .replace(/\*(.*?)\*/g, '<em>$1</em>')
-        .replace(/\[(.*?)\]\((.*?)\)/g, '<a href="$2" target="_blank">$1</a>');
+        .replace(/\[([^\[\]]*?)\]\(([^\(\)\[\]]*?)\)/g, '<a href="$2" target="_blank">$1</a>');
 }
 
 
