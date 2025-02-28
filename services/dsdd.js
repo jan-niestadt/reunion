@@ -2,8 +2,7 @@
 
 REUNION.addService({
 	// The service we're querying
-	id: 'dsdd',
-	title: 'Zuid-Nederlandse Dialecten (DSDD)',
+	name: 'dsdd',
 
 	// The resources this service will search
 	resources: [
@@ -17,7 +16,7 @@ REUNION.addService({
 	// Function that performs the search and reports the results to the reporter
 	// The reporter is an object that has a method searchCompleted(service, results)
 	search(searchString, reporter) {
-		const url = new URL('https://dsdd.ivdnt.org/dsdd-api/concepts') // @@@ /unified_search  !!!
+		const url = new URL('https://dsdd.ivdnt.org/dsdd-api/concepts')
 		url.search = new URLSearchParams({
             include_facets: true,
 			include_data: true,
@@ -31,7 +30,7 @@ REUNION.addService({
 			.then(data => {
                 const results = data.concepts.map(concept => {
                     // Also encode parentheses inside markdown!
-                    const url = `https://dsdd.ivdnt.org/DSDD/search?dir=0&page=1&word=${concept}`
+                    const url = `https://dsdd.ivdnt.org/DSDD/search?dir=0&page=1&word=${concept.display}`
 					const betekenissen = concept.keywords
 						.sort( (a, b) => b['data.count'] - a['data.count'] )
 						.slice(0, 3).map(keyword => ({

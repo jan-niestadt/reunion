@@ -2,8 +2,7 @@
 
 REUNION.addService({
 	// The service we're querying
-	id: 'combi',
-	title: 'Woordcombinaties',
+	name: 'combi',
 
 	// The resources this service will search
 	resources: [
@@ -17,7 +16,7 @@ REUNION.addService({
 	// Function that performs the search and reports the results to the reporter
 	// The reporter is an object that has a method searchCompleted(service, results)
 	search(searchString, reporter) {
-		const url = new URL('https://woordcombinaties.ivdnt.org/solr-api/search') // @@@ /unified_search  !!!
+		const url = new URL('https://woordcombinaties.ivdnt.org/solr-api/search')
 		url.search = new URLSearchParams({
             'q.lemma-tokenized': searchString,
             rows: 1000,
