@@ -2,6 +2,38 @@ const REUNION = {
 
     _services: [],
 
+    // Methods to build HTML responses safely
+    htmlBuilder: {
+        qa(text, preserveCR) {
+            preserveCR = preserveCR ? '&#13;' : '\n';
+            return ('' + text) /* Forces the conversion to string. */
+                .replace(/&/g, '&amp;') /* This MUST be the 1st replacement. */
+                .replace(/'/g, '&apos;') /* The 4 other predefined entities, required. */
+                .replace(/"/g, '&quot;')
+                .replace(/</g, '&lt;')
+                .replace(/>/g, '&gt;')
+                /*
+                You may add other replacements here for HTML only 
+                (but it's not necessary).
+                Or for XML, only if the named entities are defined in its DTD.
+                */ 
+                .replace(/\r\n/g, preserveCR) /* Must be before the next replacement. */
+                .replace(/[\r\n]/g, preserveCR);
+        },
+        text(text) {
+            return REUNION.htmlBuilder.qa(text);
+        },
+        link(html, url, target = '_blank') {
+            return `<a target="${REUNION.htmlBuilder.qa(target, true)}" href="${REUNION.htmlBuilder.qa(url, true)}">${html}</a>`;
+        },
+        b(html) {
+            return html.match(/^\s*$/) ? '' : `<strong>${html}</strong>`;
+        },
+        i(html) {
+            return html.match(/^\s*$/) ? '' : `<em>${html}</em>`;
+        }
+    },
+
     addService(service) {
         // Make sure resources know their own service
         service.resources.forEach(resource => resource.service = service);
@@ -28,93 +60,42 @@ const REUNION = {
     },
 
     performSearch(searchString, reporter) {
+
         this._services.forEach(service => {
             service.resources.forEach(resource => {
-                reporter.searchStarted(resource);
+                if (reporter.started)
+                    reporter.started(resource);
             });
             service.search(searchString, {
-                searchCompleted(resource, results) {
+                finished(resource, results) {
+
+                    // Translate from markdown if necessary
                     results.forEach(result => {
-                        if (result.markdown) {
+                        if (!result.html && result.markdown) {
                             result.html = markdownToHtml(result.markdown);
                         }
-                        (result.betekenissen || []).forEach(betekenis => {
-                            if (betekenis.markdown) {
+                        (result.snippet || []).forEach(betekenis => {
+                            if (!betekenis.html && betekenis.markdown) {
                                 betekenis.html = markdownToHtml(betekenis.markdown);
                             }
                         });
                     })
-                    reporter.searchCompleted(resource, results);
+                    if (reporter.finished)
+                        reporter.finished(resource, results);
+                    else {
+                        console.error(`Finished search on ${this.report(resource)} for ${searchString}, but no finished() method defined`);
+                        console.log(results);
+                    }
                 },
-                searchFailed(resource, reason) {
-                    reporter.searchFailed(resource, reason);
+                failed(resource, reason) {
+                    if (reporter.failed)
+                        reporter.failed(resource, reason);
+                    else {
+                        console.error(`Failed search on ${this.report(resource)} for ${searchString}, but no failed() method defined`);
+                        console.error(`REASON: ${reason}`);
+                    }
                 }
             });
         });
     }
-}
-
-function mdLink(text, url) {
-    return `[${text}](${url.replace(/\(/g, '%28').replace(/\)/g, '%29')})`;
-}
-function mdBold(text) {
-    return `**${text.replace(/\*\*/, '\\*\\*')}**`;
-}
-function mdItalic(text) {
-    return `*${text.replace(/\*/, '\\*')}*`;
-}
-
-function markdownToHtml(markdown) {
-    console.log(markdown);
-    return markdown
-        .replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>')
-        .replace(/\*(.*?)\*/g, '<em>$1</em>')
-        .replace(/\[([^\[\]]*?)\]\(([^\(\)\[\]]*?)\)/g, '<a href="$2" target="_blank">$1</a>');
-}
-
-
-
-const WOORDSOORT_REPLACE = [
-	// (see ArtikelObject in unified-search repo for current list)
-	{
-		find: /znw\.?/,
-		replace: 'zelfstandig naamwoord',
-	},
-	{
-		find: /\(v\.?\)/,
-		replace: ' (vrouwelijk)',
-	},
-	{
-		find: /\(m\.?\)/,
-		replace: ' (vrouwelijk)',
-	},
-	{
-		find: /\(o\.?\)/,
-		replace: ' (vrouwelijk)',
-	},
-	{
-		find: 'v.',
-		replace: ' (vrouwelijk)',
-	},
-	{
-		find: 'm.',
-		replace: ' (mannelijk)',
-	},
-	{
-		find: 'o.',
-		replace: ' (onzijdig)',
-	},
-	{
-		find: '&nbsp;',
-		replace: '',
-	},
-];
-
-function translateWoordsoort(woordsoort) {
-	if (woordsoort) {
-		WOORDSOORT_REPLACE.forEach(o => {
-			woordsoort = woordsoort.replace(o.find, o.replace);
-		});
-	}
-	return woordsoort;
 }

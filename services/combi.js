@@ -14,7 +14,7 @@ REUNION.addService({
 	],
 
 	// Function that performs the search and reports the results to the reporter
-	// The reporter is an object that has a method searchCompleted(service, results)
+	// The reporter is an object that has a method finished(service, results)
 	search(searchString, reporter) {
 		const url = new URL('https://woordcombinaties.ivdnt.org/solr-api/search')
 		url.search = new URLSearchParams({
@@ -26,21 +26,22 @@ REUNION.addService({
 		fetch(url)
 			.then(response => response.json())
 			.then(data => {
+				const { link, b, i, text } = REUNION.htmlBuilder;
                 const results = data.results.map(result => {
                     // Also encode parentheses inside markdown!
 					const lemma = result['lemma-clean'];
                     const url = `https://woordcombinaties.ivdnt.org/docs/${encodeURI(result.title)}/${result.pid}`
-                    const woordsoort = translateWoordsoort(result['part-of-speech']);
+                    const woordsoort = unifyPartOfSpeech(result['part-of-speech']);
                     const optAdd = result['lemma-addition'] ? ` (${result['lemma-addition']})` : '';
                     return {
-                        markdown: `${mdLink(lemma, url)}${optAdd} ${mdItalic(woordsoort)}`
+                        html: `${link(lemma, url)}${text(optAdd)} ${i(woordsoort)}`
                     };
                 });
-				reporter.searchCompleted(this.resources[0], results);
+				reporter.finished(this.resources[0], results);
 			})
 			.catch(err => {
 				console.error(err);
-				reporter.searchFailed(this.resources[0], err);
+				reporter.failed(this.resources[0], err);
 			});
 	},
 });

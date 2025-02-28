@@ -12,7 +12,7 @@ REUNION.addService({
 	],
 
 	// Function that performs the search and reports the results to the reporter
-	// The reporter is an object that has a method searchCompleted(service, results)
+	// The reporter is an object that has a method finished(service, results)
 	search(searchString, reporter) {
 		const url = new URL('https://anw.ivdnt.org/unified_search')
 		url.search = new URLSearchParams({ trefwoord: searchString }).toString();
@@ -20,35 +20,35 @@ REUNION.addService({
 			.then(response => response.text())
 			.then(str => new window.DOMParser().parseFromString(str, "text/xml"))
 			.then(data => {
-				//console.log(data);
 				const results = [];
 				const arts = findSingleElement(data, 'artikelen');
+				const { link, text, b, i } = REUNION.htmlBuilder;
 				forEachChildElement(arts, art => {
 					if (art.nodeType === Element.ELEMENT_NODE) {
-						const betekenissen = [];
+						const snippet = [];
 						const bets = findSingleElement(art, 'betekenissen');
 						forEachChildElement(bets, bet => {
 							const url = getElementValue(bet, 'url');
 							const nr = getElementValue(bet, 'betekenisnummer');
 							const definitie = getElementValue(bet, 'definitie');
-							betekenissen.push({
-								markdown: `${mdBold(nr)} ${definitie} ${mdLink('➤', url)}`
+							snippet.push({
+								html: `${b(nr)} ${text(definitie)} ${link('➤', url)}`
 							});
 						});
 						const lemma = getElementValue(art, 'modern_lemma');
 						const url = getElementValue(art, 'url');
-						const woordsoort = translateWoordsoort(getElementValue(art, 'woordsoort'));
+						const woordsoort = unifyPartOfSpeech(getElementValue(art, 'woordsoort'));
 						results.push({
-							markdown: `${mdLink(lemma, url)} ${mdItalic(woordsoort)}`,
-							betekenissen
+							html: `${link(lemma, url)} ${i(woordsoort)}`,
+							snippet
 						});
 					}
 				});
-				reporter.searchCompleted(this.resources[0], results);
+				reporter.finished(this.resources[0], results);
 			})
 			.catch(err => {
 				console.error(err);
-				reporter.searchFailed(this.resources[0], err);
+				reporter.failed(this.resources[0], err);
 			});
 	},
 });

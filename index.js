@@ -47,23 +47,20 @@ function performSearch(searchString) {
 
     // perform the search
     REUNION.performSearch(searchString, {
-
         // Called when the search is started on a service
-        searchStarted(resource) {
+        started(resource) {
             console.log(`Started search on ${REUNION.report(resource)} for ${searchString}`);
             setNumberOfResults('…', resource);
             setResultsHtml('<p>Searching...</p>', resource);
         },
 
         // Called when the search is completed for a resource
-        searchCompleted(resource, results) {
+        finished(resource, results) {
             setNumberOfResults(results.length, resource);
             totalResults += results.length;
             setNumberOfResults(totalResults);
             const resultsHtml = results.map(result => {
-                const hist = result.historischLemma && result.historischLemma.toLowerCase() !== result.modernLemma.toLowerCase() ? 
-                    ` ("${result.historischLemma.toLowerCase()}")` : '';
-                const betHtml = (result.betekenissen || []).map(bet => `<li>${bet.html}</li>`).join('');
+                const betHtml = (result.snippet || []).map(bet => `<li>${bet.html}</li>`).join('');
                 return `
                     <li>
                         <p>${result.html}</p>
@@ -74,7 +71,7 @@ function performSearch(searchString) {
         },
 
         // Called when the search failed for a service
-        searchFailed(resource, reason) {
+        failed(resource, reason) {
             console.log(`FAILED: search on ${REUNION.report(resource)} for ${searchString}, reason: ${reason}`);
             setNumberOfResults('⨯', resource);
             setResultsHtml(`<p>Search on '${resource.name}' failed: ${reason}</p>`, resource);

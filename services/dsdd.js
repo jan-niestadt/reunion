@@ -14,7 +14,7 @@ REUNION.addService({
 	],
 
 	// Function that performs the search and reports the results to the reporter
-	// The reporter is an object that has a method searchCompleted(service, results)
+	// The reporter is an object that has a method finished(service, results)
 	search(searchString, reporter) {
 		const url = new URL('https://dsdd.ivdnt.org/dsdd-api/concepts')
 		url.search = new URLSearchParams({
@@ -28,25 +28,26 @@ REUNION.addService({
 		fetch(url)
 			.then(response => response.json())
 			.then(data => {
+				const { link, b, i, text } = REUNION.htmlBuilder;
                 const results = data.concepts.map(concept => {
                     // Also encode parentheses inside markdown!
                     const url = `https://dsdd.ivdnt.org/DSDD/search?dir=0&page=1&word=${concept.display}`
-					const betekenissen = concept.keywords
+					const snippet = concept.keywords
 						.sort( (a, b) => b['data.count'] - a['data.count'] )
 						.slice(0, 3).map(keyword => ({
-						markdown: `${keyword.display} (${keyword['data.count']})`
+						html: `${text(keyword.display)} (${text(keyword['data.count'])})`
 					}));
-					betekenissen.push({ markdown: `...` });
+					snippet.push({ html: `...` });
                     return {
-                        markdown: `${mdLink(concept.display, url)} - ${concept.definition}`,
-						betekenissen
+                        html: `${link(concept.display, url)} - ${text(concept.definition)}`,
+						snippet
                     };
                 });
-				reporter.searchCompleted(this.resources[0], results);
+				reporter.finished(this.resources[0], results);
 			})
 			.catch(err => {
 				console.error(err);
-				reporter.searchFailed(this.resources[0], err);
+				reporter.failed(this.resources[0], err);
 			});
 	},
 });

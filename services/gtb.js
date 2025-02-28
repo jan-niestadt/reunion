@@ -27,7 +27,7 @@ REUNION.addService({
 	],
 
 	// Function that performs the search and reports the results to the reporter
-	// The reporter is an object that has a method searchCompleted(service, results)
+	// The reporter is an object that has a method finished(service, results)
 	search(searchString, reporter) {
 		const url = new URL('https://anw.ivdnt.org/backend/lemmalist?output=json&prefix=A') // @@@ GTB /unified_search  !!!
 		url.search = new URLSearchParams({ trefwoord: searchString }).toString();
@@ -51,34 +51,35 @@ REUNION.addService({
 					const arts = findSingleElement(wdb, 'artikelen');
 					forEachChildElement(arts, art => {
 						if (art.nodeType === Element.ELEMENT_NODE) {
-							const betekenissen = [];
+							const snippet = [];
 							const bets = findSingleElement(art, 'betekenissen');
+							const { link, b, i, text } = REUNION.htmlBuilder;
 							forEachChildElement(bets, bet => {
 								const url = getElementValue(bet, 'url');
 								const nr = getElementValue(bet, 'betekenisnummer');
 								const definitie = getElementValue(bet, 'definitie');
-								betekenissen.push({
-									markdown: `${mdBold(nr)} ${definitie} ${mdLink('➤', url)}`
+								snippet.push({
+									html: `${b(nr)} ${text(definitie)} ${link('➤', url)}`
 								});
 							});
 							const lemma = getElementValue(art, 'modern_lemma');
 							const url = getElementValue(art, 'url');
-							const woordsoort = translateWoordsoort(getElementValue(art, 'woordsoort'));
+							const woordsoort = unifyPartOfSpeech(getElementValue(art, 'woordsoort'));
 							const historischLemma = getElementValue(art, 'historisch_lemma');
 							results.push({
-								markdown: mdLink(lemma, url) +
-									`${ historischLemma.toLowerCase() !== lemma.toLowerCase() ? ` ("${historischLemma}")` : ''}` +
-									`${ woordsoort ? ` ${mdItalic(woordsoort)}` : ''}`,
-								betekenissen
+								html: link(lemma, url) +
+									`${ historischLemma.toLowerCase() !== lemma.toLowerCase() ? ` ("${text(historischLemma)}")` : ''}` +
+									` ${i(woordsoort)}`,
+								snippet
 							});
 						}
 					});
-					reporter.searchCompleted(resource, results);
+					reporter.finished(resource, results);
 				});
 			})
 			.catch(err => {
 				console.error(err);
-				this.resources.forEach(resource => reporter.searchFailed(resource, err));
+				this.resources.forEach(resource => reporter.failed(resource, err));
 			});
 	},
 });
