@@ -68,18 +68,10 @@ const REUNION = {
             });
             service.search(searchString, {
                 finished(resource, results) {
-
-                    // Translate from markdown if necessary
                     results.forEach(result => {
-                        if (!result.html && result.markdown) {
-                            result.html = markdownToHtml(result.markdown);
-                        }
-                        (result.snippet || []).forEach(betekenis => {
-                            if (!betekenis.html && betekenis.markdown) {
-                                betekenis.html = markdownToHtml(betekenis.markdown);
-                            }
-                        });
-                    })
+                        if (!result.snippet)
+                            result.snippet = [];
+                    });
                     if (reporter.finished)
                         reporter.finished(resource, results);
                     else {

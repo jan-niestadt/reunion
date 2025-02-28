@@ -34,12 +34,11 @@ REUNION.addService({
                     const url = `https://dsdd.ivdnt.org/DSDD/search?dir=0&page=1&word=${concept.display}`
 					const snippet = concept.keywords
 						.sort( (a, b) => b['data.count'] - a['data.count'] )
-						.slice(0, 3).map(keyword => ({
-						html: `${text(keyword.display)} (${text(keyword['data.count'])})`
-					}));
-					snippet.push({ html: `...` });
+						.slice(0, 3)
+						.map(keyword => (`${text(keyword.display)} (${text(keyword['data.count'])})`));
+					snippet.push(`...`);
                     return {
-                        html: `${link(concept.display, url)} - ${text(concept.definition)}`,
+                        main: `${link(concept.display, url)} - ${text(concept.definition)}`,
 						snippet
                     };
                 });

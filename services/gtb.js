@@ -58,16 +58,14 @@ REUNION.addService({
 								const url = getElementValue(bet, 'url');
 								const nr = getElementValue(bet, 'betekenisnummer');
 								const definitie = getElementValue(bet, 'definitie');
-								snippet.push({
-									html: `${b(nr)} ${text(definitie)} ${link('➤', url)}`
-								});
+								snippet.push(`${b(nr)} ${text(definitie)} ${link('➤', url)}`);
 							});
 							const lemma = getElementValue(art, 'modern_lemma');
 							const url = getElementValue(art, 'url');
 							const woordsoort = unifyPartOfSpeech(getElementValue(art, 'woordsoort'));
 							const historischLemma = getElementValue(art, 'historisch_lemma');
 							results.push({
-								html: link(lemma, url) +
+								main: link(lemma, url) +
 									`${ historischLemma.toLowerCase() !== lemma.toLowerCase() ? ` ("${text(historischLemma)}")` : ''}` +
 									` ${i(woordsoort)}`,
 								snippet

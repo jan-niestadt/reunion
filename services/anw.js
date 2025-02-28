@@ -31,15 +31,13 @@ REUNION.addService({
 							const url = getElementValue(bet, 'url');
 							const nr = getElementValue(bet, 'betekenisnummer');
 							const definitie = getElementValue(bet, 'definitie');
-							snippet.push({
-								html: `${b(nr)} ${text(definitie)} ${link('➤', url)}`
-							});
+							snippet.push(`${b(nr)} ${text(definitie)} ${link('➤', url)}`);
 						});
 						const lemma = getElementValue(art, 'modern_lemma');
 						const url = getElementValue(art, 'url');
 						const woordsoort = unifyPartOfSpeech(getElementValue(art, 'woordsoort'));
 						results.push({
-							html: `${link(lemma, url)} ${i(woordsoort)}`,
+							main: `${link(lemma, url)} ${i(woordsoort)}`,
 							snippet
 						});
 					}

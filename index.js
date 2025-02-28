@@ -60,10 +60,10 @@ function performSearch(searchString) {
             totalResults += results.length;
             setNumberOfResults(totalResults);
             const resultsHtml = results.map(result => {
-                const betHtml = (result.snippet || []).map(bet => `<li>${bet.html}</li>`).join('');
+                const betHtml = (result.snippet || []).map(snippet => `<li>${snippet}</li>`).join('');
                 return `
                     <li>
-                        <p>${result.html}</p>
+                        <p>${result.main}</p>
                         <ul class="bet">${betHtml}</ul>
                     </li>`;
             }).join('');
