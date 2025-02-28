@@ -1,12 +1,12 @@
 REUNION.addService({
 	// The service we're querying
-	name: 'fail',
+	id: 'fail',
 
 	// The resources this service will search
 	resources: [
 		{
 			id: 'fail',
-			title: 'Failing resource',
+			name: 'Failing resource',
 		}
 	],
 

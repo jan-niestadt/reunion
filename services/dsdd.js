@@ -2,14 +2,14 @@
 
 REUNION.addService({
 	// The service we're querying
-	name: 'dsdd',
+	id: 'dsdd',
 
 	// The resources this service will search
 	resources: [
 		{
 			id: 'dsdd',
-			titleShort: 'DSDD',
-			title: 'Database van de Zuidelijk-Nederlandse Dialecten',
+			shortName: 'DSDD',
+			name: 'Database van de Zuidelijk-Nederlandse Dialecten',
 		}
 	],
 

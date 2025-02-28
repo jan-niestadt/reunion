@@ -1,13 +1,13 @@
 REUNION.addService({
 	// The service we're querying
-	name: 'anw',
+	id: 'anw',
 
 	// The resources this service will search
 	resources: [
 		{
 			id: 'anw',
-			titleShort: 'ANW (1970-nu)',
-			title: 'Algemeen Nederlands Woordenboek (1970-nu)',
+			shortName: 'ANW (1970-nu)',
+			name: 'Algemeen Nederlands Woordenboek (1970-nu)',
 		}
 	],
 

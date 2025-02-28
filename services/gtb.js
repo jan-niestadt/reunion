@@ -1,28 +1,28 @@
 REUNION.addService({
 	// The service we're querying
-	name: 'gtb',
+	id: 'gtb',
 
 	// The resources this service will search in
 	resources: [
 		{
 			id: 'wnt',
-			titleShort: 'WNT (1500-1976)',
-			title: 'Woordenboek der Nederlandsche Taal (1500-1976)',
+			name: 'Woordenboek der Nederlandsche Taal (1500-1976)',
+			shortName: 'WNT (1500-1976)',
 		},
 		{
 			id: 'mnw',
-			titleShort: 'MNW (1300-1500)',
-			title: 'Middelnederlands (1300-1500)',
+			name: 'Middelnederlands (1300-1500)',
+			shortName: 'MNW (1300-1500)',
 		},
 		{
 			id: 'vmnw',
-			titleShort: 'VMNW (1200-1300)',
-			title: 'Vroegmiddelnederlands (1200-1300)',
+			name: 'Vroegmiddelnederlands (1200-1300)',
+			shortName: 'VMNW (1200-1300)',
 		},
 		{
 			id: 'onw',
-			titleShort: 'ONW (500-1200)',
-			title: 'Oudnederlands (500-1200)',
+			name: 'Oudnederlands (500-1200)',
+			shortName: 'ONW (500-1200)',
 		},
 	],
 

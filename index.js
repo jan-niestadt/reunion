@@ -50,7 +50,7 @@ function performSearch(searchString) {
 
         // Called when the search is started on a service
         searchStarted(service) {
-            //console.log(`Started search on ${service.name} (resources ${service.resources.map(r => r.id)}) for ${searchString}`);
+            //console.log(`Started search on ${service.id} (resources ${service.resources.map(r => r.id)}) for ${searchString}`);
             service.resources.forEach(resource => {
                 setNumberOfResults('…', resource);
                 setResultsHtml('<p>Searching...</p>', resource);
@@ -77,10 +77,10 @@ function performSearch(searchString) {
 
         // Called when the search failed for a service
         searchFailed(service, reason) {
-            console.log(`FAILED: search on ${service.name} (resources: ${service.resources.map(r => r.title)}) for ${searchString}, reason: ${reason}`);
+            console.log(`FAILED: search on ${service.id} (resources: ${service.resources.map(r => r.name)}) for ${searchString}, reason: ${reason}`);
             service.resources.forEach(resource => {
                 setNumberOfResults('⨯', resource);
-                setResultsHtml(`<p>Search on '${resource.title}' failed: ${reason}</p>`, resource);
+                setResultsHtml(`<p>Search on '${resource.name}' failed: ${reason}</p>`, resource);
             });
         }
     });
@@ -90,9 +90,9 @@ function performSearch(searchString) {
 // Navigation at the top
 const topNav = `<div class='resourcesNav'>` +
 REUNION.resources.map(resource => `
-    <span title="${resource.title}" class='resourceNav' id='nav-${resource.id}'>
+    <span title="${resource.name}" class='resourceNav' id='nav-${resource.id}'>
         <a href="#resource-${resource.id}"
-            >${(resource.titleShort || resource.title)
+            >${(resource.shortName || resource.name)
                 .replaceAll(/\(([^)]+)\)/g, '<small>$1</small>')}</a>
         <span class='num-${resource.id}'></span>
     </span>
@@ -103,7 +103,7 @@ const heading = `<p>Trefwoorden voor: <span id='searchString'></span> <span id='
 const results = REUNION.resources
         .map(resource => 
             `<div class='resource' id='resource-${resource.id}'>
-                <h2>${resource.title}
+                <h2>${resource.name}
                     <span class='num-${resource.id}'></span>
                 </h2>
                 <ul class="results" id="results-${resource.id}">

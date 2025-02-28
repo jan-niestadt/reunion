@@ -2,14 +2,14 @@
 
 REUNION.addService({
 	// The service we're querying
-	name: 'combi',
+	id: 'combi',
 
 	// The resources this service will search
 	resources: [
 		{
 			id: 'combi',
-			titleShort: 'Woordcombinaties',
-			title: 'Woordcombinaties',
+			shortName: 'Woordcombinaties',
+			name: 'Woordcombinaties',
 		}
 	],
 
