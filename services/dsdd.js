@@ -10,6 +10,7 @@ REUNION.addService({
 			id: 'dsdd',
 			shortName: 'DSDD',
 			name: 'Database van de Zuidelijk-Nederlandse Dialecten',
+			type: 'dictionary'
 		}
 	],
 
@@ -28,7 +29,7 @@ REUNION.addService({
 		fetch(url)
 			.then(response => response.json())
 			.then(data => {
-				const { link, b, i, text } = REUNION.htmlBuilder;
+				const { link, moreLink, text } = REUNION.htmlBuilder;
                 const results = data.concepts.map(concept => {
                     // Also encode parentheses inside markdown!
                     const url = `https://dsdd.ivdnt.org/DSDD/search?dir=0&page=1&word=${concept.display}`
@@ -36,7 +37,7 @@ REUNION.addService({
 						.sort( (a, b) => b['data.count'] - a['data.count'] )
 						.slice(0, 3)
 						.map(keyword => (`${text(keyword.display)} (${text(keyword['data.count'])})`));
-					snippet.push(`...`);
+					snippet.push(moreLink(url));
                     return {
                         main: `${link(concept.display, url)} - ${text(concept.definition)}`,
 						snippet

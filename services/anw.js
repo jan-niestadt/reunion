@@ -8,6 +8,7 @@ REUNION.addService({
 			id: 'anw',
 			shortName: 'ANW (1970-nu)',
 			name: 'Algemeen Nederlands Woordenboek (1970-nu)',
+			type: 'dictionary'
 		}
 	],
 

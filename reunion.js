@@ -1,36 +1,63 @@
+const isEmpty = (html) => {
+    return html.toString().match(/^\s*$/);
+};
+
+const qa = (text, preserveCR) => {
+    preserveCR = preserveCR ? '&#13;' : '\n';
+    return ('' + text) /* Forces the conversion to string. */
+        .replace(/&/g, '&amp;') /* This MUST be the 1st replacement. */
+        .replace(/'/g, '&apos;') /* The 4 other predefined entities, required. */
+        .replace(/"/g, '&quot;')
+        .replace(/</g, '&lt;')
+        .replace(/>/g, '&gt;')
+        /*
+        You may add other replacements here for HTML only 
+        (but it's not necessary).
+        Or for XML, only if the named entities are defined in its DTD.
+        */ 
+        .replace(/\r\n/g, preserveCR) /* Must be before the next replacement. */
+        .replace(/[\r\n]/g, preserveCR);
+};
+
 const REUNION = {
 
     _services: [],
 
     // Methods to build HTML responses safely
     htmlBuilder: {
-        qa(text, preserveCR) {
-            preserveCR = preserveCR ? '&#13;' : '\n';
-            return ('' + text) /* Forces the conversion to string. */
-                .replace(/&/g, '&amp;') /* This MUST be the 1st replacement. */
-                .replace(/'/g, '&apos;') /* The 4 other predefined entities, required. */
-                .replace(/"/g, '&quot;')
-                .replace(/</g, '&lt;')
-                .replace(/>/g, '&gt;')
-                /*
-                You may add other replacements here for HTML only 
-                (but it's not necessary).
-                Or for XML, only if the named entities are defined in its DTD.
-                */ 
-                .replace(/\r\n/g, preserveCR) /* Must be before the next replacement. */
-                .replace(/[\r\n]/g, preserveCR);
-        },
         text(text) {
-            return REUNION.htmlBuilder.qa(text);
+            return qa(text);
         },
-        link(html, url, target = '_blank') {
-            return `<a target="${REUNION.htmlBuilder.qa(target, true)}" href="${REUNION.htmlBuilder.qa(url, true)}">${html}</a>`;
+        link(html, url, className, target = '_blank') {
+            if (Array.isArray(className))
+                className = className.join(' ');
+            const optClass = className ? ` class="${qa(className)}"` : '';
+            return `<a target="${qa(target, true)}" href="${qa(url, true)}"${optClass}>${qa(isEmpty(html) ? url : html)}</a>`;
+        },
+        moreLink() {
+            return REUNION.htmlBuilder.link('(meer)', ...arguments);
+        },
+        el(elName, innerHtml, className, evenIfEmpty = false) {
+            if (!evenIfEmpty && isEmpty(innerHtml))
+                return '';
+            if (Array.isArray(className))
+                className = className.join(' ');
+            const optClass = className
+                ? ` class="${qa(className)}"`
+                : '';
+            return `<${elName}${optClass}>${innerHtml}</${elName}>`;
+        },
+        span(html, className) {
+            return REUNION.htmlBuilder.el('span', html, className);
+        },
+        div(html, className) {
+            return REUNION.htmlBuilder.el('div', html, className);
         },
         b(html) {
-            return html.match(/^\s*$/) ? '' : `<strong>${html}</strong>`;
+            return REUNION.htmlBuilder.el('strong', html);
         },
         i(html) {
-            return html.match(/^\s*$/) ? '' : `<em>${html}</em>`;
+            return REUNION.htmlBuilder.el('em', html);
         }
     },
 
@@ -90,4 +117,12 @@ const REUNION = {
             });
         });
     }
+}
+
+// Template function for building URLs, applying encodeURIComponent to all parameters,
+// so e.g. url`test1${bla}test2` with bla === '"' will produce 'test1%22test2'
+function escapeForUrl(stringParts, ...interpolateValues) {
+    return stringParts.reduce((result, string, i) => {
+        return result + string + encodeURIComponent(interpolateValues[i] || '');
+    }, '');
 }

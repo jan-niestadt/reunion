@@ -7,6 +7,7 @@ REUNION.addService({
 		{
 			id: 'fail',
 			name: 'Failing resource',
+			type: 'misc'
 		}
 	],
 

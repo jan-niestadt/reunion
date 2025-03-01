@@ -10,6 +10,7 @@ REUNION.addService({
 			id: 'combi',
 			shortName: 'Woordcombinaties',
 			name: 'Woordcombinaties',
+			type: 'dictionary'
 		}
 	],
 	
