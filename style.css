@@ -99,3 +99,11 @@ p.failed {
     font-weight: bold;
     padding: 0.5rem;
 }
+
+.list-item {
+    display: flex;
+}
+
+.ordinal {
+    min-width: 2em;
+}
