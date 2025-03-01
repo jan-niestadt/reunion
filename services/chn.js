@@ -15,6 +15,7 @@ export default {
 	// Function that performs the search and reports the results to the reporter
 	// The reporter is an object that has a method finished(service, results)
 	search(searchString, reporter) {
+		searchString = searchString.replace(/\*/g, '.*');
 		fetch(`https://anw.ivdnt.org/backend/corpus?output=json&lemma=${encodeURIComponent(searchString)}`)
 			.then(response => response.json())
 			.then(data => {
@@ -24,14 +25,11 @@ export default {
 					const p = (frag && frag.punct || []);
 					return w.map((word, i) => p[i] ? `${p[i]}${word}` : `${word} `).join('');
 				}
-				const snippet = data.hits.slice(0, 5)
-					.map(hit => (`${hit.start > 0 ? `…` : ''} ${words(hit.left||hit.before)} ${b(words(hit.match))} ${words(hit.right||hit.after)} …`))
+				const results = data.hits.slice(0, 5)
+					.map(hit => ({ main: `${hit.start > 0 ? `…` : ''} ${words(hit.left||hit.before)} ${b(words(hit.match))} ${words(hit.right||hit.after)} …` }))
 				const chnUrl = `https://portal.clarin.ivdnt.org/corpus-frontend-chn/chn-extern/search/hits?patt=%5Bword%3D%22${encodeURIComponent(searchString)}%22%5D`;
-					snippet.push(moreLink(chnUrl));
-				reporter.finished(this.resources[0], [{
-					main: `${link('CHN', chnUrl)}`,
-					snippet
-				}]);
+				results.push({ main: moreLink(chnUrl) });
+				reporter.finished(this.resources[0], results);
 			})
 			.catch(err => {
 				console.error(err);

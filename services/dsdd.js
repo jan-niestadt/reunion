@@ -27,14 +27,14 @@ export default {
 		fetch(url)
 			.then(response => response.json())
 			.then(data => {
-				const { link, moreLink, text, sentence } = reporter.htmlBuilder;
+				const { link, moreLink, text, sentence, listItem } = reporter.htmlBuilder;
                 const results = data.concepts.map(concept => {
                     // Also encode parentheses inside markdown!
                     const url = `https://dsdd.ivdnt.org/DSDD/search?dir=0&page=1&word=${concept.display}`
 					const snippet = concept.keywords
 						.sort( (a, b) => b['data.count'] - a['data.count'] )
 						.slice(0, 3)
-						.map(keyword => (`${text(keyword.display)} (${text(keyword['data.count'])})`));
+						.map(keyword => (listItem(`${text(keyword.display)} (${text(keyword['data.count'])})`)));
 					snippet.push(moreLink(url));
                     return {
                         main: `${link(concept.display, url)} - ${sentence(concept.definition)}`,

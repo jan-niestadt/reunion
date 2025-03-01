@@ -66,7 +66,7 @@ export default {
 								const nr = XML.getElementValue(bet, 'betekenisnummer');
 								const definitie = XML.getElementValue(bet, 'definitie');
 								const content = `${htmlSentence(definitie)} ${linkIcon(url)}`;
-								snippet.push(listItem(nr, content));
+								snippet.push(listItem(content, nr));
 							});
 							const lemma = XML.getElementValue(art, 'modern_lemma');
 							const url = XML.getElementValue(art, 'url');

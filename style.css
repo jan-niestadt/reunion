@@ -67,6 +67,14 @@ a.icon {
     background-color: rgb(241, 241, 241);
 }
 
+.results {
+    padding-left: 0.6rem;
+}
+
+.results > li {
+    list-style: none;
+}
+
 .results > li > p > a {
     font-weight: bold;
 }
@@ -105,5 +113,6 @@ p.failed {
 }
 
 .ordinal {
-    min-width: 2em;
+    min-width: 1.9em;
+    font-weight: bold;
 }
