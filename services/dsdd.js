@@ -27,7 +27,7 @@ export default {
 		fetch(url)
 			.then(response => response.json())
 			.then(data => {
-				const { link, moreLink, text } = reporter.htmlBuilder;
+				const { link, moreLink, text, sentence } = reporter.htmlBuilder;
                 const results = data.concepts.map(concept => {
                     // Also encode parentheses inside markdown!
                     const url = `https://dsdd.ivdnt.org/DSDD/search?dir=0&page=1&word=${concept.display}`
@@ -37,7 +37,7 @@ export default {
 						.map(keyword => (`${text(keyword.display)} (${text(keyword['data.count'])})`));
 					snippet.push(moreLink(url));
                     return {
-                        main: `${link(concept.display, url)} - ${text(concept.definition)}`,
+                        main: `${link(concept.display, url)} - ${sentence(concept.definition)}`,
 						snippet
                     };
                 });

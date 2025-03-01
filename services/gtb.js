@@ -60,12 +60,12 @@ export default {
 						if (art.nodeType === Element.ELEMENT_NODE) {
 							const snippet = [];
 							const bets = XML.findSingleElement(art, 'betekenissen');
-							const { link, b, i, text } = reporter.htmlBuilder;
+							const { link, linkIcon, b, i, text, htmlSentence } = reporter.htmlBuilder;
 							XML.forEachChildElement(bets, bet => {
 								const url = XML.getElementValue(bet, 'url');
 								const nr = XML.getElementValue(bet, 'betekenisnummer');
 								const definitie = XML.getElementValue(bet, 'definitie');
-								snippet.push(`${b(nr)} ${text(definitie)} ${link('➤', url)}`);
+								snippet.push(`${b(nr)} ${htmlSentence(definitie)} ${linkIcon(url)}`);
 							});
 							const lemma = XML.getElementValue(art, 'modern_lemma');
 							const url = XML.getElementValue(art, 'url');

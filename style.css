@@ -80,3 +80,22 @@ a.icon {
 .results .betnr {
     font-weight: bold;
 }
+
+ul.bet {
+    padding-left: 1em;
+}
+
+ul.bet li {
+    list-style: none;
+}
+
+a.icon {
+    text-decoration: none;
+}
+
+p.failed {
+    background-color: rgb(255, 220, 178);
+    color: black;
+    font-weight: bold;
+    padding: 0.5rem;
+}

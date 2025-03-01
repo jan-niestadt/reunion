@@ -146,7 +146,7 @@ function performSearch(searchString) {
         failed(resource, reason) {
             console.log(`FAILED: search on ${REUNION.report(resource)} for ${searchString}, reason: ${reason}`);
             setNumberOfResults('⨯', resource);
-            setResultsHtml(`<p>Search on '${resource.name}' failed: ${reason}</p>`, resource);
+            setResultsHtml(`<p class='failed'>Search on '${resource.name}' failed: ${reason}</p>`, resource);
         }
     });
 }
