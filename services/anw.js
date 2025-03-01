@@ -1,4 +1,7 @@
-REUNION.addService({
+import *  as XML from '../lib/xml.js';
+import { unifyPartOfSpeech } from '../lib/util.js';
+
+export default {
 	// The service we're querying
 	id: 'anw',
 
@@ -22,21 +25,21 @@ REUNION.addService({
 			.then(str => new window.DOMParser().parseFromString(str, "text/xml"))
 			.then(data => {
 				const results = [];
-				const arts = findSingleElement(data, 'artikelen');
-				const { link, text, b, i } = REUNION.htmlBuilder;
-				forEachChildElement(arts, art => {
+				const arts = XML.findSingleElement(data, 'artikelen');
+				const { link, text, b, i } = reporter.htmlBuilder;
+				XML.forEachChildElement(arts, art => {
 					if (art.nodeType === Element.ELEMENT_NODE) {
 						const snippet = [];
-						const bets = findSingleElement(art, 'betekenissen');
-						forEachChildElement(bets, bet => {
-							const url = getElementValue(bet, 'url');
-							const nr = getElementValue(bet, 'betekenisnummer');
-							const definitie = getElementValue(bet, 'definitie');
+						const bets = XML.findSingleElement(art, 'betekenissen');
+						XML.forEachChildElement(bets, bet => {
+							const url = XML.getElementValue(bet, 'url');
+							const nr = XML.getElementValue(bet, 'betekenisnummer');
+							const definitie = XML.getElementValue(bet, 'definitie');
 							snippet.push(`${b(nr)} ${text(definitie)} ${link('➤', url)}`);
 						});
-						const lemma = getElementValue(art, 'modern_lemma');
-						const url = getElementValue(art, 'url');
-						const woordsoort = unifyPartOfSpeech(getElementValue(art, 'woordsoort'));
+						const lemma = XML.getElementValue(art, 'modern_lemma');
+						const url = XML.getElementValue(art, 'url');
+						const woordsoort = unifyPartOfSpeech(XML.getElementValue(art, 'woordsoort'));
 						results.push({
 							main: `${link(lemma, url)} ${i(woordsoort)}`,
 							snippet
@@ -50,5 +53,4 @@ REUNION.addService({
 				reporter.failed(this.resources[0], err);
 			});
 	},
-});
-
+};

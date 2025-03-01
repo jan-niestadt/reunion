@@ -1,4 +1,4 @@
-REUNION.addService({
+export default {
 	// The service we're querying
 	id: 'etym',
 
@@ -15,7 +15,6 @@ REUNION.addService({
 	// Function that performs the search and reports the results to the reporter
 	// The reporter is an object that has a method finished(service, results)
 	search(searchString, reporter) {
-		fetch(`https://anw.ivdnt.org/backend/lemmalist?output=json&prefix=A`)
 		/*fetch(`https://etymologiebank.nl/zoek_woord`, {
 			method: 'POST',
 			headers: {
@@ -23,31 +22,17 @@ REUNION.addService({
 			},
 			body: new URLSearchParams({ zoekterm: searchString })
 		})*/
+		fetch(`https://anw.ivdnt.org/backend/lemmalist?output=json&prefix=A`)
 			.then(response => response.text())
 			.then(response => {
 				return new window.DOMParser().parseFromString(ETYM_RESPONSE, "text/html"); 
 			})
 			.then(data => {
-				console.log(data);
-				const { link } = REUNION.htmlBuilder;
+				//console.log(data);
+				const { link } = reporter.htmlBuilder;
 				const results = [...data.querySelectorAll('#text p a')].map(a => ({
 					main: `${link(a.textContent, a.href)}`
 				}));
-				/*
-				const { link, moreLink, b, i } = REUNION.htmlBuilder;
-				function words(frag) {
-					const w = (frag && frag.word || []);
-					const p = (frag && frag.punct || []);
-					return w.map((word, i) => p[i] ? `${p[i]}${word}` : `${word} `).join('');
-				}
-				const snippet = data.hits.slice(0, 5)
-					.map(hit => (`${hit.start > 0 ? `…` : ''} ${words(hit.left||hit.before)} ${b(words(hit.match))} ${words(hit.right||hit.after)} …`))
-				const chnUrl = escapeForUrl`https://portal.clarin.ivdnt.org/corpus-frontend-chn/chn-extern/search/hits?patt=%5Bword%3D%22${searchString}%22%5D`;
-					snippet.push(moreLink(chnUrl));
-				const results = [{
-					main: `${link('CHN', chnUrl)}`,
-					snippet
-				}];*/
 				reporter.finished(this.resources[0], results);
 			})
 			.catch(err => {
@@ -55,7 +40,7 @@ REUNION.addService({
 				reporter.failed(this.resources[0], err);
 			});
 	},
-});
+};
 
 const ETYM_RESPONSE = `<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
 <html xmlns="http://www.w3.org/1999/xhtml" lang="nl">

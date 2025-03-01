@@ -1,6 +1,4 @@
-//https://woordcombinaties.ivdnt.org/solr-api/search?q.lemma-tokenized=%22passeren%22&rows=10000&sort=lemma+asc&fl=pid,title,lemma-clean,lemma-pos,lemma-addition,lemma-patterns,lemma-zich,part-of-speech,showPatterns
-
-REUNION.addService({
+export default {
 	// The service we're querying
 	id: 'dsdd',
 
@@ -29,7 +27,7 @@ REUNION.addService({
 		fetch(url)
 			.then(response => response.json())
 			.then(data => {
-				const { link, moreLink, text } = REUNION.htmlBuilder;
+				const { link, moreLink, text } = reporter.htmlBuilder;
                 const results = data.concepts.map(concept => {
                     // Also encode parentheses inside markdown!
                     const url = `https://dsdd.ivdnt.org/DSDD/search?dir=0&page=1&word=${concept.display}`
@@ -50,5 +48,5 @@ REUNION.addService({
 				reporter.failed(this.resources[0], err);
 			});
 	},
-});
+};
 

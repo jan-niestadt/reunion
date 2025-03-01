@@ -1,4 +1,7 @@
-REUNION.addService({
+import *  as XML from '../lib/xml.js';
+import { unifyPartOfSpeech } from '../lib/util.js';
+
+export default {
 	// The service we're querying
 	id: 'gtb',
 
@@ -43,31 +46,31 @@ REUNION.addService({
 			})
 			.then(data => {
 				//console.log(data);
-				forEachElement(data.getElementsByTagName('wdb'), wdb => {
-					const naam = getElementValue(wdb, 'wdb_naam');
+				XML.forEachElement(data.getElementsByTagName('wdb'), wdb => {
+					const naam = XML.getElementValue(wdb, 'wdb_naam');
 					const resource = this.resources.find(resource => resource.id === naam.toLowerCase());
 					if (!resource) {
 						throw new Error(`wdb_naam from GTB response not found: ${naam}`);
 					}
-					const numArticles = getElementValue(wdb, 'aantal_artikelen');
-					const numItems = getElementValue(wdb, 'aantal_items');
+					const numArticles = XML.getElementValue(wdb, 'aantal_artikelen');
+					const numItems = XML.getElementValue(wdb, 'aantal_items');
 					const results = [];
-					const arts = findSingleElement(wdb, 'artikelen');
-					forEachChildElement(arts, art => {
+					const arts = XML.findSingleElement(wdb, 'artikelen');
+					XML.forEachChildElement(arts, art => {
 						if (art.nodeType === Element.ELEMENT_NODE) {
 							const snippet = [];
-							const bets = findSingleElement(art, 'betekenissen');
-							const { link, b, i, text } = REUNION.htmlBuilder;
-							forEachChildElement(bets, bet => {
-								const url = getElementValue(bet, 'url');
-								const nr = getElementValue(bet, 'betekenisnummer');
-								const definitie = getElementValue(bet, 'definitie');
+							const bets = XML.findSingleElement(art, 'betekenissen');
+							const { link, b, i, text } = reporter.htmlBuilder;
+							XML.forEachChildElement(bets, bet => {
+								const url = XML.getElementValue(bet, 'url');
+								const nr = XML.getElementValue(bet, 'betekenisnummer');
+								const definitie = XML.getElementValue(bet, 'definitie');
 								snippet.push(`${b(nr)} ${text(definitie)} ${link('➤', url)}`);
 							});
-							const lemma = getElementValue(art, 'modern_lemma');
-							const url = getElementValue(art, 'url');
-							const woordsoort = unifyPartOfSpeech(getElementValue(art, 'woordsoort'));
-							const historischLemma = getElementValue(art, 'historisch_lemma');
+							const lemma = XML.getElementValue(art, 'modern_lemma');
+							const url = XML.getElementValue(art, 'url');
+							const woordsoort = unifyPartOfSpeech(XML.getElementValue(art, 'woordsoort'));
+							const historischLemma = XML.getElementValue(art, 'historisch_lemma');
 							results.push({
 								main: link(lemma, url) +
 									`${ historischLemma.toLowerCase() !== lemma.toLowerCase() ? ` ("${text(historischLemma)}")` : ''}` +
@@ -84,7 +87,7 @@ REUNION.addService({
 				this.resources.forEach(resource => reporter.failed(resource, err));
 			});
 	},
-});
+};
 
 
 

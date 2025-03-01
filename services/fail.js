@@ -1,4 +1,4 @@
-REUNION.addService({
+export default {
 	// The service we're querying
 	id: 'fail',
 
@@ -16,4 +16,4 @@ REUNION.addService({
             reporter.failed(this.resources[0], 'Service not available');
         }, Math.random() * 2000);
     },
-});
+};

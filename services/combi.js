@@ -1,6 +1,6 @@
-//https://woordcombinaties.ivdnt.org/solr-api/search?rows=10000&sort=lemma+asc&fl=pid,title,lemma-clean,lemma-pos,lemma-addition,lemma-patterns,lemma-zich,part-of-speech,showPatterns&q.lemma-tokenized=%22passeren%22
+import { unifyPartOfSpeech } from '../lib/util.js';
 
-REUNION.addService({
+export default {
 	// The service we're querying
 	id: 'combi',
 
@@ -25,7 +25,7 @@ REUNION.addService({
 		fetch(url)
 			.then(response => response.json())
 			.then(data => {
-				const { link, b, i, text } = REUNION.htmlBuilder;
+				const { link, b, i, text } = reporter.htmlBuilder;
                 const results = data.results.map(result => {
 					const lemma = result['lemma-clean'];
                     const url = `${this.SITE_URL}/docs/${encodeURI(result.title)}/${result.pid}`
@@ -41,5 +41,5 @@ REUNION.addService({
 				reporter.failed(this.resources[0], err);
 			});
 	},
-});
+};
 

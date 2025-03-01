@@ -1,8 +1,80 @@
+import { REUNION } from './lib/reunion.js';
+
+const services = [
+    'anw',
+    'gtb',
+    'chn',
+    'combi',
+    'dsdd',
+    'etymologiebank',
+    'taalportaal',
+    'fail'
+];
+
+let initialized = false;
+
+async function initSearch() {
+    if (initialized)
+        return;
+    initialized = true;
+
+    await REUNION.loadServices(services);
+
+    // Set up our results areas based on the resources we're querying
+    // Navigation at the top
+    const topNav = `<div class='resourcesNav'>` +
+    REUNION.resources.map(resource => `
+        <span title="${resource.name}" class='resourceNav' id='nav-${resource.id}'>
+            <a href="#resource-${resource.id}"
+                >${(resource.shortName || resource.name)
+                    .replaceAll(/\(([^)]+)\)/g, '<small>$1</small>')}</a>
+            <span class='num-${resource.id}'></span>
+        </span>
+    `).join('') + `
+    </div>`;
+    const heading = `<p>Trefwoorden voor: <span id='searchString'></span> <span id='totalResults'></span></p>`;
+        // Result areas per resource
+    const results = REUNION.resources
+            .map(resource => 
+                `<div class='resource' id='resource-${resource.id}'>
+                    <h2>${resource.name}
+                        <span class='num-${resource.id}'></span>
+                    </h2>
+                    <ul class="results" id="results-${resource.id}">
+                    </ul>
+                </div>`)
+            .join('');
+    document.getElementById('results').innerHTML = topNav + heading + results;
+    
+    // Handle form submission
+    document.getElementById('form').addEventListener('submit', async (e) => {
+        e.preventDefault();
+        const searchString = document.getElementById('search').value;
+        const url = new URL(location);
+        url.searchParams.set("query", searchString);
+        history.pushState({}, "", url);
+        //console.log(`Form submitted with ${searchString}`);
+        await initSearch();
+        performSearch(searchString);
+    });
+}
+
 // Don't re-run last search if not necessary
 let lastSearchString = undefined;
 
 // Keep track of total results from all resources
 let totalResults = 0;
+
+// Handle back/forward navigation and page reload
+const historyHandler = async (event) => {
+    const searchString = new URL(location).searchParams.get("query");
+    document.getElementById('search').value = searchString;
+    //console.log(`History navigation to ${searchString}`);
+    await initSearch();
+    performSearch(searchString);
+};
+window.addEventListener("popstate", historyHandler);
+window.addEventListener("DOMContentLoaded", historyHandler);
 
 function setNumberOfResults(value, resource) {
     const txt = value ? `[${value}]` : '';
@@ -42,14 +114,14 @@ function performSearch(searchString) {
     }
 
     // Show that the search is starting
-    console.log(`Searching for ${searchString}`);
+    //console.log(`Searching for ${searchString}`);
     document.getElementById('searchString').innerText = searchString;
 
     // perform the search
     REUNION.performSearch(searchString, {
         // Called when the search is started on a service
         started(resource) {
-            console.log(`Started search on ${REUNION.report(resource)} for ${searchString}`);
+            //console.log(`Started search on ${REUNION.report(resource)} for ${searchString}`);
             setNumberOfResults('…', resource);
             setResultsHtml('<p>Searching...</p>', resource);
         },
@@ -78,48 +150,3 @@ function performSearch(searchString) {
         }
     });
 }
-
-// Set up our results areas based on the resources we're querying
-// Navigation at the top
-const topNav = `<div class='resourcesNav'>` +
-REUNION.resources.map(resource => `
-    <span title="${resource.name}" class='resourceNav' id='nav-${resource.id}'>
-        <a href="#resource-${resource.id}"
-            >${(resource.shortName || resource.name)
-                .replaceAll(/\(([^)]+)\)/g, '<small>$1</small>')}</a>
-        <span class='num-${resource.id}'></span>
-    </span>
-`).join('') + `
-</div>`;
-const heading = `<p>Trefwoorden voor: <span id='searchString'></span> <span id='totalResults'></span></p>`;
-    // Result areas per resource
-const results = REUNION.resources
-        .map(resource => 
-            `<div class='resource' id='resource-${resource.id}'>
-                <h2>${resource.name}
-                    <span class='num-${resource.id}'></span>
-                </h2>
-                <ul class="results" id="results-${resource.id}">
-                </ul>
-            </div>`)
-        .join('');
-document.getElementById('results').innerHTML = topNav + heading + results;
-
-// Handle form submission
-document.getElementById('form').addEventListener('submit', (e) => {
-    e.preventDefault();
-    const searchString = document.getElementById('search').value;
-    const url = new URL(location);
-    url.searchParams.set("query", searchString);
-    history.pushState({}, "", url);
-    performSearch(searchString);
-});
-
-// Handle back/forward navigation and page reload
-const historyHandler = (event) => {
-    const searchString = new URL(location).searchParams.get("query");
-    document.getElementById('search').value = searchString;
-    performSearch(searchString);
-};
-window.addEventListener("popstate", historyHandler);
-window.addEventListener("DOMContentLoaded", historyHandler);
