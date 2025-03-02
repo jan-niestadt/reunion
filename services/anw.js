@@ -1,5 +1,6 @@
 import *  as XML from '../lib/xml.js';
 import { unifyPartOfSpeech } from '../lib/util.js';
+import { HTML_BUILDER } from '../lib/reunion.js';
 
 export default {
 	// The service we're querying
@@ -27,7 +28,7 @@ export default {
 				const results = [];
 				const arts = XML.findSingleElement(data, 'artikelen');
 				
-				const { link, linkIcon, sentence, listItem, i } = reporter.htmlBuilder;
+				const { link, linkIcon, sentence, listItem, i } = HTML_BUILDER;
 
 				XML.forEachChildElement(arts, art => {
 					if (art.nodeType === Element.ELEMENT_NODE) {
