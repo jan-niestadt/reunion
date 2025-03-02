@@ -26,6 +26,7 @@ export default {
 			.then(str => new window.DOMParser().parseFromString(str, "text/xml"))
 			.then(data => {
 				const results = [];
+				let number = 0;
 				const arts = XML.findSingleElement(data, 'artikelen');
 				
 				const { link, linkIcon, sentence, listItem, i } = HTML_BUILDER;
@@ -44,13 +45,14 @@ export default {
 						const lemma = XML.getElementValue(art, 'modern_lemma');
 						const url = XML.getElementValue(art, 'url');
 						const woordsoort = unifyPartOfSpeech(XML.getElementValue(art, 'woordsoort'));
-						results.push({
-							main: `${link(lemma, url)} ${i(woordsoort)}`,
-							snippet
-						});
+						results.push(`<li>${link(lemma, url)} ${i(woordsoort)}<ul>${snippet.join('')}</ul></li>`);
+						number++;
 					}
 				});
-				reporter.finished(this.resources[0], results);
+				reporter.finished(this.resources[0], {
+					number,
+					html: `<ul>${results.join('')}</ul>`
+				});
 			})
 			.catch(err => {
 				console.error(err);

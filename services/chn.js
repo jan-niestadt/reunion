@@ -25,11 +25,14 @@ export default {
 					const p = (frag && frag.punct || []);
 					return w.map((word, i) => p[i] ? `${p[i]}${word}` : `${word} `).join('');
 				}
-				const results = data.hits.slice(0, 5)
-					.map(hit => ({ main: `${hit.start > 0 ? `…` : ''} ${words(hit.left||hit.before)} ${b(words(hit.match))} ${words(hit.right||hit.after)} …` }))
+				const results = data.hits.slice(0, 10)
+					.map(hit => (`<tr><td class='before'>${hit.start > 0 ? `…` : ''} ${words(hit.left||hit.before)}</td><td class='match'>${b(words(hit.match))}</td><td class='after'>${words(hit.right||hit.after)} …</tr>`))
 				const chnUrl = `https://portal.clarin.ivdnt.org/corpus-frontend-chn/chn-extern/search/hits?patt=%5Bword%3D%22${encodeURIComponent(searchString)}%22%5D`;
-				results.push({ main: moreLink(chnUrl) });
-				reporter.finished(this.resources[0], results);
+				results.push(`<tr><td colspan='3'>${moreLink(chnUrl)}</td></tr>`);
+				reporter.finished(this.resources[0], {
+					number: results.length,
+					html: `<table class='conc'>${results.join('')}</table>`
+				});
 			})
 			.catch(err => {
 				console.error(err);

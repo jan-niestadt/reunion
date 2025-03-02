@@ -13,17 +13,23 @@
 
 html {
     scroll-behavior: smooth;
+    font-size: 130%;
 }
 
 body {
-    font-size: 120%;
     font-family: "Times New Roman", Georgia, Serif !important;
     text-rendering: optimizeLegibility;
+}
+
+a {
+    color: black;
+    text-decoration: underline;
 }
 
 h1, h2, h3 {
     font-weight: normal;
     font-family: 'schoolboek', sans-serif;
+    margin-top: 1.5em;
 }
 
 form {
@@ -49,9 +55,13 @@ a.icon {
     background-color: rgb(241, 241, 241);
     padding: 0.6rem 0.6rem 0.4rem 0.6rem;
 }
-.resourcesNav a {
+.resourceNav a {
     font-family: 'schoolboek', sans-serif;
-    margin-left: 1rem;
+    margin-left: 1em;
+}
+
+.resourceNav:first-child > a {
+    margin-left: 0;
 }
 
 .resourceNav {
@@ -63,38 +73,40 @@ a.icon {
     font-weight: normal;
     font-size: 1.2em;
     padding: 0.6rem 0.6rem 0.4rem 0.6rem;
-    margin: 0;
+    /* margin: 0; */
     background-color: rgb(241, 241, 241);
 }
 
-.results {
+.results > ul {
     padding-left: 0.6rem;
 }
 
-.results > li {
+.results > ul > li {
     list-style: none;
+    margin-bottom: 1rem;
 }
 
-.results > li > p > a {
+.results > ul > li > a {
     font-weight: bold;
 }
 
-.results > li > p > em {
+.results > ul > li > em {
     font-style: italic;
     color: #07606e;
     font-weight: bold;
 }
 
-.results .betnr {
+.results > ul .betnr {
     font-weight: bold;
 }
 
-ul.bet {
+.results > ul > li > ul {
     padding-left: 1em;
 }
 
-ul.bet li {
+.results > ul > li > ul > li {
     list-style: none;
+    display: flex;
 }
 
 a.icon {
@@ -108,11 +120,30 @@ p.failed {
     padding: 0.5rem;
 }
 
-.list-item {
-    display: flex;
-}
-
 .ordinal {
     min-width: 1.9em;
     font-weight: bold;
+}
+
+table.conc {
+    width: 100%;
+    border-collapse: collapse;
+    margin: 1em 0;
+}
+
+table.conc td.before {
+    text-align: right;
+    white-space: nowrap;
+    padding-right: 0.5em;
+}
+
+table.conc td.match {
+    text-align: center;
+    white-space: nowrap;
+}
+
+table.conc td.after {
+    text-align: left;
+    white-space: nowrap;
+    padding-left: 0.5em;
 }

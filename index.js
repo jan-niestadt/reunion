@@ -2,13 +2,12 @@ import { REUNION } from './lib/reunion.js';
 
 const services = [
     'anw',
-    'gtb',
     'chn',
-    'combi',
-    'dsdd',
-    'etymologiebank',
-    'taalportaal',
-    'fail'
+    // 'gtb',
+    // 'combi',
+    // 'dsdd',
+    // 'etymologiebank',
+    // 'taalportaal'
 ];
 
 let initialized = false;
@@ -36,12 +35,12 @@ async function initSearch() {
         // Result areas per resource
     const results = REUNION.resources
             .map(resource => 
-                `<div class='resource' id='resource-${resource.id}'>
+                `<div class='resource ${resource.type}' id='resource-${resource.id}'>
                     <h2>${resource.name}
                         <span class='num-${resource.id}'></span>
                     </h2>
-                    <ul class="results" id="results-${resource.id}">
-                    </ul>
+                    <div class="results" id="results-${resource.id}">
+                    </div>
                 </div>`)
             .join('');
     document.getElementById('results').innerHTML = topNav + heading + results;
@@ -128,18 +127,10 @@ function performSearch(searchString) {
 
         // Called when the search is completed for a resource
         finished(resource, results) {
-            setNumberOfResults(results.length, resource);
-            totalResults += results.length;
+            setNumberOfResults(results.number || 0, resource);
+            totalResults += results.number || 0;
             setNumberOfResults(totalResults);
-            const resultsHtml = results.map(result => {
-                const betHtml = (result.snippet || []).map(snippet => `<li>${snippet}</li>`).join('');
-                return `
-                    <li>
-                        <p>${result.main}</p>
-                        <ul class="bet">${betHtml}</ul>
-                    </li>`;
-            }).join('');
-            setResultsHtml(resultsHtml, resource);
+            setResultsHtml(results.html || '???', resource);
         },
 
         // Called when the search failed for a service
