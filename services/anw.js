@@ -26,7 +26,9 @@ export default {
 			.then(data => {
 				const results = [];
 				const arts = XML.findSingleElement(data, 'artikelen');
+				
 				const { link, linkIcon, sentence, listItem, i } = reporter.htmlBuilder;
+
 				XML.forEachChildElement(arts, art => {
 					if (art.nodeType === Element.ELEMENT_NODE) {
 						const snippet = [];
@@ -36,7 +38,7 @@ export default {
 							const nr = XML.getElementValue(bet, 'betekenisnummer');
 							const definitie = XML.getElementValue(bet, 'definitie');
 							const content = `${sentence(definitie)} ${linkIcon(url)}`;
-							snippet.push(listItem(content, nr));
+							snippet.push(listItem(content, nr === '0.0' ? '' : nr));
 						});
 						const lemma = XML.getElementValue(art, 'modern_lemma');
 						const url = XML.getElementValue(art, 'url');
