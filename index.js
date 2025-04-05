@@ -3,7 +3,7 @@ import { REUNION } from './lib/reunion.js';
 const services = [
     'anw',
     'chn',
-    // 'gtb',
+    'gtb',
     // 'combi',
     // 'dsdd',
     // 'etymologiebank',

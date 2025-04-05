@@ -72,15 +72,15 @@ export default {
 							const url = XML.getElementValue(art, 'url');
 							const woordsoort = unifyPartOfSpeech(XML.getElementValue(art, 'woordsoort'));
 							const historischLemma = XML.getElementValue(art, 'historisch_lemma');
-							results.push({
-								main: link(lemma, url) +
+							results.push(`<li>${link(lemma, url)}` +
 									`${ historischLemma.toLowerCase() !== lemma.toLowerCase() ? ` ("${text(historischLemma)}")` : ''}` +
-									` ${i(woordsoort)}`,
-								snippet
-							});
+									` ${i(woordsoort)}<ul>${snippet.join('')}</ul></li>`);
 						}
 					});
-					reporter.finished(resource, results);
+					reporter.finished(resource, {
+						number: numArticles,
+						html: `<ul>${results.join('')}</ul>`
+					});
 				});
 			})
 			.catch(err => {
