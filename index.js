@@ -4,10 +4,10 @@ const services = [
     'anw',
     'chn',
     'gtb',
-    // 'combi',
-    // 'dsdd',
-    // 'etymologiebank',
-    // 'taalportaal'
+    'combi',
+    'dsdd',
+    'etymologiebank',
+    'taalportaal'
 ];
 
 let initialized = false;

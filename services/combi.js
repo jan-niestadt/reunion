@@ -25,19 +25,20 @@ export default {
 		fetch(url)
 			.then(response => response.json())
 			.then(data => {
-				const { link, b, i, text } = reporter.htmlBuilder;
-                const results = data.results.map(result => {
+				const results = data.results.map(result => {
 					const lemma = result['lemma-clean'];
-                    const url = `${this.SITE_URL}/docs/${encodeURI(result.title)}/${result.pid}`
-                    const woordsoort = unifyPartOfSpeech(result['part-of-speech']);
-                    const optAdd = result['lemma-addition'] ? ` (${result['lemma-addition']})` : '';
-                    return {
-                        main: `${link(lemma, url)}${text(optAdd)} ${i(woordsoort)}`
-                    };
-                });
-				reporter.finished(this.resources[0], results);
+					const url = `${this.SITE_URL}/docs/${encodeURI(result.title)}/${result.pid}`;
+					const woordsoort = unifyPartOfSpeech(result['part-of-speech']);
+					const optAdd = result['lemma-addition'] ? ` (${result['lemma-addition']})` : '';
+					return `<li><a href="${url}" target="_blank">${lemma}</a>${optAdd} <i>${woordsoort}</i></li>`;
+				}).join('');
+				reporter.finished(this.resources[0], {
+					number: data.results.length,
+					html: `<ul>${results}</ul>`
+				});
 			})
 			.catch(err => {
+				console.error(err);
 				reporter.failed(this.resources[0], err);
 			});
 	},

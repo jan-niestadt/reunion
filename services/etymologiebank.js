@@ -15,25 +15,24 @@ export default {
 	// Function that performs the search and reports the results to the reporter
 	// The reporter is an object that has a method finished(service, results)
 	search(searchString, reporter) {
-		/*fetch(`https://etymologiebank.nl/zoek_woord`, {
+		fetch(`https://etymologiebank.nl/zoek_woord`, {
 			method: 'POST',
 			headers: {
 				'Content-Type': 'application/x-www-form-urlencoded',
 			},
 			body: new URLSearchParams({ zoekterm: searchString })
-		})*/
-		fetch(`https://anw.ivdnt.org/backend/lemmalist?output=json&prefix=A`)
+		})
 			.then(response => response.text())
 			.then(response => {
-				return new window.DOMParser().parseFromString(ETYM_RESPONSE, "text/html"); 
-			})
-			.then(data => {
-				//console.log(data);
-				const { link } = reporter.htmlBuilder;
-				const results = [...data.querySelectorAll('#text p a')].map(a => ({
-					main: `${link(a.textContent, a.href)}`
-				}));
-				reporter.finished(this.resources[0], results);
+				const data = new window.DOMParser().parseFromString(response, "text/html");
+				const links = [...data.querySelectorAll('#text p a')];
+				const results = links.map(a => 
+					`<li><a href="${a.href}" target="_blank">${a.textContent}</a></li>`
+				).join('');
+				reporter.finished(this.resources[0], {
+					number: links.length,
+					html: `<ul>${results}</ul>`
+				});
 			})
 			.catch(err => {
 				console.error(err);

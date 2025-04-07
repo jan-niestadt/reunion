@@ -15,33 +15,31 @@ export default {
 	// Function that performs the search and reports the results to the reporter
 	// The reporter is an object that has a method finished(service, results)
 	search(searchString, reporter) {
-		const url = new URL('https://dsdd.ivdnt.org/dsdd-api/concepts')
+		const url = new URL('https://dsdd.ivdnt.org/dsdd-api/concepts');
 		url.search = new URLSearchParams({
-            include_facets: true,
+			include_facets: true,
 			include_data: true,
 			search_in: 'concepts',
 			word: searchString,
 			start: 0,
 			rows: 1000
-        }).toString();
+		}).toString();
 		fetch(url)
 			.then(response => response.json())
 			.then(data => {
-				const { link, moreLink, text, sentence, listItem } = reporter.htmlBuilder;
-                const results = data.concepts.map(concept => {
-                    // Also encode parentheses inside markdown!
-                    const url = `https://dsdd.ivdnt.org/DSDD/search?dir=0&page=1&word=${concept.display}`
+				const results = data.concepts.map(concept => {
+					const url = `https://dsdd.ivdnt.org/DSDD/search?dir=0&page=1&word=${concept.display}`;
 					const snippet = concept.keywords
-						.sort( (a, b) => b['data.count'] - a['data.count'] )
+						.sort((a, b) => b['data.count'] - a['data.count'])
 						.slice(0, 3)
-						.map(keyword => (listItem(`${text(keyword.display)} (${text(keyword['data.count'])})`)));
-					snippet.push(moreLink(url));
-                    return {
-                        main: `${link(concept.display, url)} - ${sentence(concept.definition)}`,
-						snippet
-                    };
-                });
-				reporter.finished(this.resources[0], results);
+						.map(keyword => `<li>${keyword.display} (${keyword['data.count']})</li>`)
+						.join('');
+					return `<li><a href="${url}" target="_blank">${concept.display}</a><ul>${snippet}</ul></li>`;
+				}).join('');
+				reporter.finished(this.resources[0], {
+					number: data.concepts.length,
+					html: `<ul>${results}</ul>`
+				});
 			})
 			.catch(err => {
 				console.error(err);

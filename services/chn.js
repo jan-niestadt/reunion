@@ -19,19 +19,18 @@ export default {
 		fetch(`https://anw.ivdnt.org/backend/corpus?output=json&lemma=${encodeURIComponent(searchString)}`)
 			.then(response => response.json())
 			.then(data => {
-				const { link, moreLink, b, i } = reporter.htmlBuilder;
-				function words(frag) {
-					const w = (frag && frag.word || []);
-					const p = (frag && frag.punct || []);
-					return w.map((word, i) => p[i] ? `${p[i]}${word}` : `${word} `).join('');
-				}
-				const results = data.hits.slice(0, 10)
-					.map(hit => (`<tr><td class='before'>${hit.start > 0 ? `…` : ''} ${words(hit.left||hit.before)}</td><td class='match'>${b(words(hit.match))}</td><td class='after'>${words(hit.right||hit.after)} …</tr>`))
+				const results = data.hits.slice(0, 10).map(hit => {
+					const words = frag => (frag.word || []).map((word, i) => (frag.punct[i] || '') + word).join('');
+					return `<tr>
+						<td class='before'>${hit.start > 0 ? '…' : ''} ${words(hit.left || hit.before)}</td>
+						<td class='match'><b>${words(hit.match)}</b></td>
+						<td class='after'>${words(hit.right || hit.after)} …</td>
+					</tr>`;
+				}).join('');
 				const chnUrl = `https://portal.clarin.ivdnt.org/corpus-frontend-chn/chn-extern/search/hits?patt=%5Bword%3D%22${encodeURIComponent(searchString)}%22%5D`;
-				results.push(`<tr><td colspan='3'>${moreLink(chnUrl)}</td></tr>`);
 				reporter.finished(this.resources[0], {
-					number: results.length,
-					html: `<table class='conc'>${results.join('')}</table>`
+					number: data.hits.length,
+					html: `<table class='conc'>${results}<tr><td colspan='3'><a href="${chnUrl}" target="_blank">More results</a></td></tr></table>`
 				});
 			})
 			.catch(err => {

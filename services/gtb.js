@@ -36,45 +36,36 @@ export default {
 	// Function that performs the search and reports the results to the reporter
 	// The reporter is an object that has a method finished(service, results)
 	search(searchString, reporter) {
-		const url = new URL('https://anw.ivdnt.org/backend/lemmalist?output=json&prefix=A') // @@@ GTB /unified_search  !!!
+		const url = new URL('https://anw.ivdnt.org/backend/lemmalist?output=json&prefix=A'); // @@@ GTB /unified_search !!!
 		url.search = new URLSearchParams({ trefwoord: searchString }).toString();
 		fetch(url)
 			.then(response => response.text())
 			.then(str => {
 				const response = GTB_RESPONSE.replace(/&(nbsp|#160);/g, ' ').replace(/\s\s+/g, ' '); // @@@ FAKE RESPONSE (CORS)
-				return new window.DOMParser().parseFromString(response, "text/xml"); 
+				return new window.DOMParser().parseFromString(response, "text/xml");
 			})
 			.then(data => {
-				//console.log(data);
 				XML.forEachElement(data.getElementsByTagName('wdb'), wdb => {
 					const naam = XML.getElementValue(wdb, 'wdb_naam');
 					const resource = this.resources.find(resource => resource.id === naam.toLowerCase());
 					if (!resource) {
 						throw new Error(`wdb_naam from GTB response not found: ${naam}`);
 					}
-					const numArticles = XML.getElementValue(wdb, 'aantal_artikelen');
-					const numItems = XML.getElementValue(wdb, 'aantal_items');
+					const numArticles = parseInt(XML.getElementValue(wdb, 'aantal_artikelen'), 10);
 					const results = [];
 					const arts = XML.findSingleElement(wdb, 'artikelen');
 					XML.forEachChildElement(arts, art => {
 						if (art.nodeType === Element.ELEMENT_NODE) {
 							const snippet = [];
 							const bets = XML.findSingleElement(art, 'betekenissen');
-							const { link, linkIcon, listItem, i, text, htmlSentence } = reporter.htmlBuilder;
 							XML.forEachChildElement(bets, bet => {
 								const url = XML.getElementValue(bet, 'url');
-								const nr = XML.getElementValue(bet, 'betekenisnummer');
 								const definitie = XML.getElementValue(bet, 'definitie');
-								const content = `${htmlSentence(definitie)} ${linkIcon(url)}`;
-								snippet.push(listItem(content, nr));
+								snippet.push(`<li>${definitie} <a href="${url}" target="_blank">Link</a></li>`);
 							});
 							const lemma = XML.getElementValue(art, 'modern_lemma');
 							const url = XML.getElementValue(art, 'url');
-							const woordsoort = unifyPartOfSpeech(XML.getElementValue(art, 'woordsoort'));
-							const historischLemma = XML.getElementValue(art, 'historisch_lemma');
-							results.push(`<li>${link(lemma, url)}` +
-									`${ historischLemma.toLowerCase() !== lemma.toLowerCase() ? ` ("${text(historischLemma)}")` : ''}` +
-									` ${i(woordsoort)}<ul>${snippet.join('')}</ul></li>`);
+							results.push(`<li><a href="${url}" target="_blank">${lemma}</a><ul>${snippet.join('')}</ul></li>`);
 						}
 					});
 					reporter.finished(resource, {
@@ -340,4 +331,3 @@ const GTB_RESPONSE = `<?xml version="1.0" encoding="UTF-8" ?>
 				</artikelen>
 	</wdb>
 	</wdbs>`;
-	
