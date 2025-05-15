@@ -15,7 +15,8 @@ export default {
 	// Function that performs the search and reports the results to the reporter
 	// The reporter is an object that has a method finished(service, results)
 	search(searchString, reporter) {
-		fetch(`https://etymologiebank.nl/zoek_woord`, {
+		fetch(`https://anw.ivdnt.org/backend/lemmalist`, {
+		//fetch(`https://etymologiebank.nl/zoek_woord`, {
 			method: 'POST',
 			headers: {
 				'Content-Type': 'application/x-www-form-urlencoded',
@@ -24,6 +25,7 @@ export default {
 		})
 			.then(response => response.text())
 			.then(response => {
+				response = ETYM_RESPONSE; // DEBUG
 				const data = new window.DOMParser().parseFromString(response, "text/html");
 				const links = [...data.querySelectorAll('#text p a')];
 				const results = links.map(a => 

@@ -34,7 +34,7 @@ export default {
 				}).join('');
 				reporter.finished(this.resources[0], {
 					number: data.results.length,
-					html: `<ul>${results}</ul>`
+					html: results.length > 0 ? `<ul>${results}</ul>` : ``,
 				});
 			})
 			.catch(err => {

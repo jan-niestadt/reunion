@@ -84,6 +84,9 @@ function setNumberOfResults(value, resource) {
 }
 
 function setResultsHtml(html, resource) {
+    if (!html) {
+        html = `<p class='no-results'>No results found.</p>`;
+    }
     document.getElementById(`results-${resource.id}`).innerHTML = html;
 }
 
@@ -130,7 +133,7 @@ function performSearch(searchString) {
             setNumberOfResults(results.number || 0, resource);
             totalResults += results.number || 0;
             setNumberOfResults(totalResults);
-            setResultsHtml(results.html || '???', resource);
+            setResultsHtml(results.html, resource);
         },
 
         // Called when the search failed for a service

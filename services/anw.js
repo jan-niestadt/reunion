@@ -29,7 +29,7 @@ export default {
 				let number = 0;
 				const arts = XML.findSingleElement(data, 'artikelen');
 				
-				const { link, linkIcon, sentence, listItem, i } = HTML_BUILDER;
+				const { link, linkIcon, sentence, listItem, i } = reporter.htmlBuilder;
 
 				XML.forEachChildElement(arts, art => {
 					if (art.nodeType === Element.ELEMENT_NODE) {
