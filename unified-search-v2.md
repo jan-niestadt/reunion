@@ -73,6 +73,6 @@ Het systeem moet dus voorzien in deze verschillende zoekmogelijkheden.
 
 ## Proof of concept: reunion
 
-[Hier](https://github.com/jan-niestadt/reunion) staat een eenvoudige client-side aggregator in Javascript. Het zou niet moeilijk zijn om deze te porten naar Node.js zodat het server-side werkt. Dit heeft o.a. als voordeel dat ontbrekende CORS-headers geen problemen opleveren.
+Op [https://github.com/jan-niestadt/reunion](https://github.com/jan-niestadt/reunion) staat een eenvoudige client-side aggregator in Javascript. Het zou niet moeilijk zijn om deze te porten naar Node.js zodat het server-side werkt. Dit heeft o.a. als voordeel dat ontbrekende CORS-headers geen problemen opleveren.
 
 Het implementeren van de optie die netwerkverkeer bespaart, is meer werk.
