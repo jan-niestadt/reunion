@@ -1,22 +1,17 @@
 // links-to-molex: aggregate the result of several API's "links-to-molex" responses,
 // so we can easily find if a Molex id is being linked to and from what resource and which entry.
 
-// Import dependencies
-const express = require('express');  // Express framework
-const cors = require('cors');        // To enable CORS
-const helmet = require('helmet');    // Enhance security with extra HTTP headers
-const morgan = require('morgan');    // Log HTTP requests
-const axios = require('axios');      // To fetch from the APIs
+import { REUNION } from './lib/reunion.js';
+
+// Use import instead of require
+import express from 'express';  // Express framework
+import cors from 'cors';        // To enable CORS
+import helmet from 'helmet';    // Enhance security with extra HTTP headers
+import morgan from 'morgan';    // Log HTTP requests
+import axios from 'axios';      // To fetch from the APIs
 
 // API timeout. If an API doesn't respond quickly enough, just report an error.
 const API_TIMEOUT_MS = 5000;
-
-// The APIs we want to aggregate, from the QUERY_APIS environment variable
-// (with a default fallback)
-const MOLEX_LINKS_APIS = process.env.QUERY_APIS ? JSON.parse(process.env.QUERY_APIS) : {
-    anw: 'http://anw-api.local/dws/api/external-links/molex',
-    combi: 'http://combi-api.local/dws/api/external-links/molex'
-};
 
 // If an API replies with more than this number of links, error out
 const API_RECORD_LIMIT = 1000;
@@ -33,95 +28,113 @@ app.use(cors());
 // Log HTTP requests
 app.use(morgan('combined'));
 
-async function getLinks(res, molexIds, lastEditDays) {
-    const errors = [];
-    const fetchPromises = Object.entries(MOLEX_LINKS_APIS).map(entry => {
-        const [ apiName, apiUrl ] = entry;
-        //console.log(`apiName ${apiName}; molexIds ${molexIds}; lastedit ${lastEditDays}`);
-        return axios.get(`${apiUrl}`, {
-            params: {
-                'dst_ids': molexIds.join(','),
-                'lastedit': lastEditDays,
-                'limit': API_RECORD_LIMIT,
-            },
-            timeout: API_TIMEOUT_MS
-        }).catch(error => {
-            // Failed to get results from this API. Collect the error so we can report it.
-            errors.push(`Failed to fetch from ${error.config.url} (${apiName})`);
-            return Promise.resolve([]);
-        }).then(result => {
-            if (Array.isArray(result)) {
-                // Caught exception (above); don't log error twice.
-            } else if (result.data['nextUrl']) {
-                // Too many links to combine. Error out.
-                errors.push(`Too many links (>${API_RECORD_LIMIT}) from ${result.config.url} (${apiName})`);
-                return Promise.resolve([]);
+
+// Find links to a word (or similar entry)
+app.get('/links', (req, res) => {
+    const lemma = req.query.q;
+    const molexId = req.query.molexId;
+    //const molexId = 216137;
+    //getLinks(res, [molexId], -1);
+
+    res.send({ results: [] });
+
+});
+
+function resrc(resource) {
+    return {
+        id: resource.id,
+        name: resource.name,
+        shortName: resource.shortName,
+        type: resource.type
+    };
+}
+
+function output(res, search, response, asHtml) {
+    if (asHtml) {
+        let html = '<html><head><title>Reunion Search Results</title></head><body>';
+        html += `<h1>Search results for '${search}'</h1>`;
+        response.resources.sort((a, b) => a.resource.id.localeCompare(b.resource.id));
+        response.resources.forEach(r => {
+            html += `<h2>${r.resource.name} (${r.number} results)</h2>`;
+            if (r.error) {
+                html += `<p class='failed'>Error: ${r.error}</p>`;
             } else {
-                // Include the api name in the results
-                if (!result.data['external-links']) {
-                    errors.push(`No external-links key in response from ${result.config.url} (${apiName})`);
-                    return Promise.resolve([]);
-                }
-                const links = result.data['external-links'].map(l => ({ srcResource: apiName, ...l }));
-                return Promise.resolve(links);
+                html += r.html;
             }
         });
-    });
-    let fetchResults = [];
-    try {
-        fetchResults = await Promise.all(fetchPromises);
-    } catch (e) {
-        errors.push(`Unexpected error: ${e}`);
-    }
-    if (errors.length > 0)
-        console.log('Errors occurred: ', errors);
-    if (errors.length === 0) {
-        // Everything okay. Reply with links.
-        const links = fetchResults.flat();
-        res.send({
-            status: {
-                ok: true,
-                errors: [],
-            },
-            links
-        });
+        html += '</body></html>';
+        res.setHeader('Content-Type', 'text/html');
+        res.send(html);
     } else {
-        // Error(s) occurred. Include a fake link so even if the application forgets to check status,
-        // it still seems as if there are links to this molex id, so it cannot be deleted.
-        res.send({
-            status: {
-                ok: false,
-                errors,
-            },
-            links: [
-                {
-                    ERROR: 'Error(s) occurred contacting API(s). See above. Refusing to return any link information.'
-                }
-            ]
-        });
+        res.setHeader('Content-Type', 'application/json');
+        res.send(JSON.stringify(response));
     }
 }
 
-// Find all links to a specific Molex lemma id
-app.get('/links/:molexId', (req, res) => {
-    const molexId = req.params.molexId;
-    //res.send({ id, msg: `Showing links to id ${id}` });
-    //const molexId = 216137;
+app.get('/search', (req, res) => {
 
-    getLinks(res, [molexId], -1);
-});
+    // Check if the Accept header allows JSON
+    const acceptHeader = req.headers['accept'] || '';
+    const acceptsJson = acceptHeader.includes('application/json') || acceptHeader.includes('*/*');
+    const acceptsHtml = acceptHeader.includes('text/html') || acceptHeader.includes('*/*');
+    if (!acceptsJson && !acceptsHtml) {
+        res.status(406).send('Not Acceptable: This endpoint only serves application/json or text/html');
+        return;
+    }
+    const outputAsHtml = (acceptsHtml && !acceptsJson) || req.query.output === 'html';
 
-app.get('/links', (req, res) => {
-    const parMolexIds = req.query['molex-ids'];
-    const molexIds = parMolexIds ? parMolexIds.split(/,/) : [];
-    const lastEditDays = req.query['lastedit'] ?? -1;
-    //res.send({ id, msg: `Showing links to id ${id}` });
-    //const molexId = 216137;
+    const lemma = req.query.q;
+    console.log(`Received search request for lemma '${lemma}'`);
 
-    getLinks(res, molexIds, lastEditDays);
+    // perform the search
+    let numberOfResources = REUNION.resources.length;
+    const response = { resources: [] };
+    REUNION.performSearch(lemma, {
+        // Called when the search is started on a service
+        started(resource) {
+        },
+
+        // Called when the search is completed for a resource
+        finished(resource, results) {
+            response.resources.push({
+                ...results,
+                resource: resrc(resource)
+            });
+            numberOfResources--;
+            if (numberOfResources === 0)
+                output(res, lemma, response, outputAsHtml);
+        },
+
+        // Called when the search failed for a service
+        failed(resource, reason) {
+            console.log(`FAILED: search on ${REUNION.report(resource)} for ${lemma}, reason: ${reason}`);
+            response.resources.push({
+                number: 0,
+                error: reason,
+                html: `<p class='failed'>Search on '${resource.name}' failed: ${reason}</p>`,
+                resource: resrc(resource)
+            });
+            numberOfResources--;
+            if (numberOfResources === 0)
+                output(res, lemma, response, outputAsHtml);
+        }
+    });
+    
 });
 
 // Start the server
 app.listen(3001, () => {
     console.log('listening on port 3001');
 });
+
+
+const services = [
+    'anw',
+    'chn',
+    'gtb',
+    'combi',
+    'dsdd',
+    'etym',
+    'taalportaal'
+];
+await REUNION.loadServices(services);
