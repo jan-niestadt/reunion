@@ -1,5 +1,5 @@
-# Reunion, client-side aggregator
+# Reunion, a search/link aggregator
 
-Reunion is a client-side aggregator that allows you to aggregate data from multiple sources and display it in a single view. It is designed to be used in a browser, and can be embedded in any web page.
+Reunion is intended to be a web service that facilitates searching multiple projects and allows multiple projects to provide relevant crosslinks to each other.
 
-A current limitation is that some project's web services don't allow accessing them from the client side (no CORS headers). Because of this, some of the services in this proof of concept include a stubbed API response. This would be solved by converting the aggregator to run on the server-side.
+See [api](./api/) for the web service and [client-side](./client-side/) for an older experiment.

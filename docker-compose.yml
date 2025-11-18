@@ -1,0 +1,23 @@
+# Docker Compose file for running Reunion API.
+#
+# To use this file:
+#     docker-compose up
+
+version: '3'
+
+services:
+
+  # The reunion aggregation API
+  api:
+    image: instituutnederlandsetaal/reunion:${APP_VERSION}
+    build: ./api
+
+    restart: unless-stopped
+
+    # API needs to access the editing database
+    env_file: api/apis.env
+
+    # Pass these environment variables to the container
+    environment:
+      # Hostnames to make the application available under (picked up by nginx-proxy)
+      - VIRTUAL_HOST=reunion.ivdnt.loc,reunion.dev.ivdnt.loc,reunion.local

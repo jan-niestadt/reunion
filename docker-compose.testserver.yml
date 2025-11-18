@@ -1,0 +1,24 @@
+# Docker Compose override file for Reunion API while developing, 
+# with mapped ports.
+#
+# Changes w.r.t. docker-compose.yml (production configuration):
+# - map ports for each service for easier troubleshooting
+# - don't autorestart containers
+#
+# The included Makefile will automatically use the development configuration
+# when running locally, and production configuration when deploying remotely.
+
+version: '3'
+
+services:
+
+  api:
+    # Expose port on the host (dev only)
+    ports:
+      - "3001:3001"
+
+    restart: "no"
+
+    # API needs to access the editing database
+    env_file: api/apis.env.testserver
+    
