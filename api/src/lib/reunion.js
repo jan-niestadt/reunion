@@ -7,6 +7,7 @@ const isEmpty = (html) => {
     return html.toString().match(/^\s*$/);
 };
 
+// Escape text for use in HTML
 const qa = (text, preserveCR) => {
     preserveCR = preserveCR ? '&#13;' : '\n';
     return ('' + text) /* Forces the conversion to string. */
@@ -80,6 +81,9 @@ const HTML_BUILDER = {
     },
     i(html) {
         return HTML_BUILDER.el('em', html);
+    },
+    ul(items) {
+        return HTML_BUILDER.el('ul', items.join(''), null, false);
     }
 };
 
@@ -122,19 +126,25 @@ const REUNION = {
         return `Object:${JSON.stringify(obj)}`;
     },
 
-    performSearch(type, searchString, molexId, reporter) {
-
+    performSearch(type, query, molexId, reporter) {
         this._services.forEach(service => {
+            const includeResources = service.resources.filter(r => reporter.include(r));
+            if (includeResources.length === 0)
+                return; // No need to call this service
             service.resources.forEach(resource => {
                 if (reporter.started)
                     reporter.started(resource);
             });
             const _reporter = {
+                include(resource) {
+                    return reporter.include(resource);
+                },
+
                 finished(resource, results) {
                     if (reporter.finished)
                         reporter.finished(resource, results);
                     else {
-                        console.error(`Finished search on ${this.report(resource)} for ${searchString}, but no finished() method defined`);
+                        console.error(`Finished search on ${this.report(resource)} for ${query}, but no finished() method defined`);
                         console.log(results);
                     }
                 },
@@ -142,21 +152,23 @@ const REUNION = {
                     if (reporter.failed)
                         reporter.failed(resource, reason);
                     else {
-                        console.error(`Failed search on ${this.report(resource)} for ${searchString}, but no failed() method defined`);
+                        console.error(`Failed search on ${this.report(resource)} for ${query}, but no failed() method defined`);
                         console.error(`REASON: ${reason}`);
                     }
                 },
                 htmlBuilder: HTML_BUILDER
             };
-            if (type === 'search' && service.search)
-                service.search(searchString, _reporter);
-            else if (type === 'links' && service.links)
-                service.links(searchString, molexId, _reporter);
-            else {
+            if (type === 'search' && service.search) {
+                service.search(query, _reporter);
+            } else if (type === 'links' && service.links) {
+                service.links(query, molexId, _reporter);
+            } else {
                 service.resources.forEach(resource => {
                     reporter.finished(resource, {
+                        status: 'unsupported',
                         number: 0,
-                        html: `<p class='not-implemented'>Search type '${type}' not implemented for service '${service.id}'</p>`
+                        links: type === 'links' ? [] : undefined,
+                        html: ''
                     });
                 });
             }

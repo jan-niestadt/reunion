@@ -28,7 +28,7 @@ export default {
 			})
 			.then(data => {
 				//console.log(data);
-				const { link, moreLink } = reporter.htmlBuilder;
+				const { link, moreLink, ul } = reporter.htmlBuilder;
 				const results = [...data.querySelectorAll('.searchresultitem a')].slice(0, 3).map(a => {
 					a.querySelector('.topictype').remove();
 					const href = `${this.TP_TOPIC_URL}/${a.getAttribute('href')}`;
@@ -38,7 +38,7 @@ export default {
 				results.push(`<li>${moreLink(tpUrl)}</li>`);
 				reporter.finished(this.resources[0], {
                     number: results.length,
-                    html: `<ul>${results.join('')}</ul>`
+                    html: ul(results)
                 });
 			})
 			.catch(err => {

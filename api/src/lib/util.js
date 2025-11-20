@@ -24,8 +24,17 @@ export function parseXml(str) {
 export function parseHtml(str) {
 	return new JSDOM(str, { contentType: "text/html" }).window.document;
 }
+
+/** Construct a URL with query parameters */
 export function searchUrl(baseUrl, params) {
 	const url = new URL(baseUrl);
 	url.search = new URLSearchParams(params).toString();
 	return url;
+}
+
+/** Join an array of strings with a specified HTML element */
+export function elJoin(elName, array) {
+	if (array.length === 0)
+		return '';
+	return `<${elName}>${array.join('')}</${elName}>`;
 }

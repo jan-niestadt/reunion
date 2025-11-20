@@ -30,13 +30,13 @@ export default {
 			})
 			.then(data => {
 				//console.log(data);
-				const { link } = reporter.htmlBuilder;
+				const { link, ul } = reporter.htmlBuilder;
 				const results = [...data.querySelectorAll('#text p a')]
 					.filter(a => !a.href.includes('javascript:'))
 					.map(a => `${link(a.textContent, a.href)}`);
 				reporter.finished(this.resources[0], {
 					number: results.length,
-					html: `<ul>${results.join('')}</ul>`
+					html: ul(results)
 				});
 			})
 			.catch(err => {

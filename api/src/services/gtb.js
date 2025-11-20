@@ -57,17 +57,17 @@ export default {
 					const numItems = XML.getElementValue(wdb, 'aantal_items');
 					const results = [];
 					const arts = XML.findSingleElement(wdb, 'artikelen');
+					const { link, linkIcon, listItem, i, text, htmlSentence, ul } = reporter.htmlBuilder;
 					XML.forEachChildElement(arts, art => {
 						if (art.nodeType === 1/*ELEMENT_NODE*/) {
-							const snippet = [];
+							const snippets = [];
 							const bets = XML.findSingleElement(art, 'betekenissen');
-							const { link, linkIcon, listItem, i, text, htmlSentence } = reporter.htmlBuilder;
 							XML.forEachChildElement(bets, bet => {
 								const url = XML.getElementValue(bet, 'url');
 								const nr = XML.getElementValue(bet, 'betekenisnummer');
 								const definitie = XML.getElementValue(bet, 'definitie');
 								const content = `${htmlSentence(definitie)} ${linkIcon(url)}`;
-								snippet.push(listItem(content, nr));
+								snippets.push(listItem(content, nr));
 							});
 							const lemma = XML.getElementValue(art, 'modern_lemma');
 							const url = XML.getElementValue(art, 'url');
@@ -75,12 +75,12 @@ export default {
 							const historischLemma = XML.getElementValue(art, 'historisch_lemma');
 							results.push(`<li>${link(lemma, url)}` +
 									`${ historischLemma.toLowerCase() !== lemma.toLowerCase() ? ` ("${text(historischLemma)}")` : ''}` +
-									` ${i(woordsoort)}<ul>${snippet.join('')}</ul></li>`);
+									` ${i(woordsoort)}${ul(snippets)}</li>`);
 						}
 					});
 					reporter.finished(resource, {
 						number: numArticles,
-						html: `<ul>${results.join('')}</ul>`
+						html: ul(results)
 					});
 				});
 			})

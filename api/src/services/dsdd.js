@@ -1,4 +1,4 @@
-import { searchUrl } from "../lib/util";
+import { searchUrl } from "../lib/util.js";
 
 export default {
 	// The service we're querying
@@ -28,7 +28,7 @@ export default {
 		fetch(url)
 			.then(response => response.json())
 			.then(data => {
-				const { link, moreLink, text, sentence, listItem } = reporter.htmlBuilder;
+				const { link, moreLink, text, sentence, listItem, ul } = reporter.htmlBuilder;
                 const results = data.concepts.map(concept => {
                     // Also encode parentheses inside markdown!
                     const url = `https://dsdd.ivdnt.org/DSDD/search?dir=0&page=1&word=${encodeURIComponent(concept.display)}`;
@@ -37,11 +37,11 @@ export default {
 						.slice(0, 3)
 						.map(keyword => (listItem(`${text(keyword.display)} (${text(keyword['data.count'])})`)));
 					snippet.push(moreLink(url));
-                    return `<li>${link(concept.display, url)} - ${sentence(concept.definition)}<ul>${snippet.join('')}</ul></li>`;
+                    return `<li>${link(concept.display, url)} - ${sentence(concept.definition)}${ul(snippet)}</li>`;
                 });
 				reporter.finished(this.resources[0], {
 					number: results.length,
-					html: `<ul>${results.join('')}</ul>`
+					html: ul(results)
 				});
 			})
 			.catch(err => {
