@@ -20,4 +20,4 @@ services:
     restart: "no"
 
     # API needs to access the editing database
-    env_file: api/apis.env.local
+    #env_file: api/apis.env.local

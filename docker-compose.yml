@@ -15,7 +15,7 @@ services:
     restart: unless-stopped
 
     # API needs to access the editing database
-    env_file: api/apis.env
+    #env_file: api/apis.env
 
     # Pass these environment variables to the container
     environment:

@@ -36,7 +36,7 @@ const HTML_BUILDER = {
     },
     listItem(html, ordinal) {
         if (!ordinal)
-            ordinal = '▪';
+            ordinal = '';
         else
             ordinal = ordinal.replace(/([\d\w])$/, '$1.');
         return `<li><span class='ordinal'>${ordinal}</span><span class='content'>${html}</span></li>`;
@@ -122,7 +122,7 @@ const REUNION = {
         return `Object:${JSON.stringify(obj)}`;
     },
 
-    performSearch(searchString, reporter) {
+    performSearch(type, searchString, molexId, reporter) {
 
         this._services.forEach(service => {
             service.resources.forEach(resource => {
@@ -148,7 +148,18 @@ const REUNION = {
                 },
                 htmlBuilder: HTML_BUILDER
             };
-            service.search(searchString, _reporter);
+            if (type === 'search' && service.search)
+                service.search(searchString, _reporter);
+            else if (type === 'links' && service.links)
+                service.links(searchString, molexId, _reporter);
+            else {
+                service.resources.forEach(resource => {
+                    reporter.finished(resource, {
+                        number: 0,
+                        html: `<p class='not-implemented'>Search type '${type}' not implemented for service '${service.id}'</p>`
+                    });
+                });
+            }
         });
     }
 }

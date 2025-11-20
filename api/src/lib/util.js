@@ -24,3 +24,8 @@ export function parseXml(str) {
 export function parseHtml(str) {
 	return new JSDOM(str, { contentType: "text/html" }).window.document;
 }
+export function searchUrl(baseUrl, params) {
+	const url = new URL(baseUrl);
+	url.search = new URLSearchParams(params).toString();
+	return url;
+}

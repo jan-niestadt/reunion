@@ -28,15 +28,49 @@ app.use(cors());
 // Log HTTP requests
 app.use(morgan('combined'));
 
+function reporter(lemma, molexId, response, numberOfResources, res, outputAsHtml = false) {
+    return {
+        // Called when the search is started on a service
+        started(resource) {
+        },
+
+        // Called when the search is completed for a resource
+        finished(resource, results) {
+            response.resources.push({
+                ...results,
+                resource: resrc(resource)
+            });
+            numberOfResources--;
+            if (numberOfResources === 0)
+                output(res, lemma, response, outputAsHtml);
+        },
+
+        // Called when the search failed for a service
+        failed(resource, reason) {
+            console.log(`FAILED: search on ${REUNION.report(resource)} for ${lemma}, reason: ${reason}`);
+            response.resources.push({
+                number: 0,
+                error: reason,
+                html: `<p class='failed'>Search on '${resource.name}' failed: ${reason}</p>`,
+                resource: resrc(resource)
+            });
+            numberOfResources--;
+            if (numberOfResources === 0)
+                output(res, lemma, response, outputAsHtml);
+        }
+    };
+}
 
 // Find links to a word (or similar entry)
 app.get('/links', (req, res) => {
     const lemma = req.query.q;
     const molexId = req.query.molexId;
-    //const molexId = 216137;
-    //getLinks(res, [molexId], -1);
+    
 
-    res.send({ results: [] });
+    // perform the search
+    let numberOfResources = REUNION.resources.length;
+    const response = { resources: [] };
+    REUNION.performSearch('links', lemma, molexId, reporter(lemma, molexId, response, numberOfResources, res, false));
 
 });
 
@@ -89,36 +123,7 @@ app.get('/search', (req, res) => {
     // perform the search
     let numberOfResources = REUNION.resources.length;
     const response = { resources: [] };
-    REUNION.performSearch(lemma, {
-        // Called when the search is started on a service
-        started(resource) {
-        },
-
-        // Called when the search is completed for a resource
-        finished(resource, results) {
-            response.resources.push({
-                ...results,
-                resource: resrc(resource)
-            });
-            numberOfResources--;
-            if (numberOfResources === 0)
-                output(res, lemma, response, outputAsHtml);
-        },
-
-        // Called when the search failed for a service
-        failed(resource, reason) {
-            console.log(`FAILED: search on ${REUNION.report(resource)} for ${lemma}, reason: ${reason}`);
-            response.resources.push({
-                number: 0,
-                error: reason,
-                html: `<p class='failed'>Search on '${resource.name}' failed: ${reason}</p>`,
-                resource: resrc(resource)
-            });
-            numberOfResources--;
-            if (numberOfResources === 0)
-                output(res, lemma, response, outputAsHtml);
-        }
-    });
+    REUNION.performSearch('search', lemma, null, reporter(lemma, null, response, numberOfResources, res, outputAsHtml));
     
 });
 
@@ -135,6 +140,6 @@ const services = [
     'combi',
     'dsdd',
     'etym',
-    'taalportaal'
+    //'taalportaal'
 ];
 await REUNION.loadServices(services);

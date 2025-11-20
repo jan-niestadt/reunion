@@ -1,3 +1,5 @@
+import { searchUrl } from "../lib/util";
+
 export default {
 	// The service we're querying
 	id: 'dsdd',
@@ -15,22 +17,21 @@ export default {
 	// Function that performs the search and reports the results to the reporter
 	// The reporter is an object that has a method finished(service, results)
 	search(searchString, reporter) {
-		const url = new URL('https://dsdd.ivdnt.org/dsdd-api/concepts')
-		url.search = new URLSearchParams({
+		const url = searchUrl('https://dsdd.ivdnt.org/dsdd-api/concepts', {
             include_facets: true,
 			include_data: true,
 			search_in: 'concepts',
 			word: searchString,
 			start: 0,
 			rows: 1000
-        }).toString();
+        });
 		fetch(url)
 			.then(response => response.json())
 			.then(data => {
 				const { link, moreLink, text, sentence, listItem } = reporter.htmlBuilder;
                 const results = data.concepts.map(concept => {
                     // Also encode parentheses inside markdown!
-                    const url = `https://dsdd.ivdnt.org/DSDD/search?dir=0&page=1&word=${concept.display}`
+                    const url = `https://dsdd.ivdnt.org/DSDD/search?dir=0&page=1&word=${encodeURIComponent(concept.display)}`;
 					const snippet = concept.keywords
 						.sort( (a, b) => b['data.count'] - a['data.count'] )
 						.slice(0, 3)

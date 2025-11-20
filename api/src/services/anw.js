@@ -1,5 +1,5 @@
 import *  as XML from '../lib/xml.js';
-import { unifyPartOfSpeech, parseXml } from '../lib/util.js';
+import { unifyPartOfSpeech, parseXml, searchUrl } from '../lib/util.js';
 import { HTML_BUILDER } from '../lib/reunion.js';
 import { JSDOM } from 'jsdom';
 
@@ -17,11 +17,28 @@ export default {
 		}
 	],
 
+	// Function that finds links to a lemma or molexId
+	// The reporter is an object that has a method finished(service, results)
+	links(lemma, molexId, reporter) {
+		const url = searchUrl(`https://anw.ivdnt.org/article/${encodeURIComponent(lemma)}`);
+		fetch(url, { method: 'HEAD' })
+			.then(response => {
+				if (response.ok) {
+					reporter.finished(this.resources[0], [ { entry: lemma, url } ]);
+				} else {
+					reporter.finished(this.resources[0], []);
+				}
+			})
+			.catch(err => {
+				console.error(err);
+				reporter.failed(this.resources[0], err);
+			});
+	},
+
 	// Function that performs the search and reports the results to the reporter
 	// The reporter is an object that has a method finished(service, results)
 	search(searchString, reporter) {
-		const url = new URL('https://anw.ivdnt.org/unified_search')
-		url.search = new URLSearchParams({ trefwoord: searchString }).toString();
+		const url = searchUrl('https://anw.ivdnt.org/unified_search', { trefwoord: searchString });
 		fetch(url)
 			.then(response => response.text())
 			.then(str => parseXml(str))

@@ -1,5 +1,5 @@
 import *  as XML from '../lib/xml.js';
-import { unifyPartOfSpeech, parseXml } from '../lib/util.js';
+import { unifyPartOfSpeech, parseXml, searchUrl } from '../lib/util.js';
 import { JSDOM } from 'jsdom';
 
 export default {
@@ -37,8 +37,8 @@ export default {
 	// Function that performs the search and reports the results to the reporter
 	// The reporter is an object that has a method finished(service, results)
 	search(searchString, reporter) {
-		const url = new URL(`https://gtb.ivdnt.org/iWDB/unified_search?lemmodern=${encodeURIComponent(searchString)}`) // @@@ GTB /unified_search  !!!
-		url.search = new URLSearchParams({ trefwoord: searchString }).toString();
+		const url = searchUrl(`https://gtb.ivdnt.org/iWDB/unified_search`, { lemmodern: searchString });
+		//url.search = new URLSearchParams({ trefwoord: searchString }).toString();
 		fetch(url)
 			.then(response => response.text())
 			.then(str => {
